@@ -6,6 +6,7 @@ import {
 import FiltersView from './view/filter.js';
 import TripInfoView from './view/trip.js';
 
+
 const tripMainContainer = document.querySelector('.trip-main');
 const tripEventsContainer = document.querySelector('.trip-events');
 const filtersContainer = tripMainContainer.querySelector('.trip-controls__filters');
