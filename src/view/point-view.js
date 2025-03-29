@@ -3,7 +3,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { getTimeInHours, getTimeInMinutes } from '../utils/point.js';
 
 function createPointTemplate(point) {
-  const { dateTo, dateFrom, basePrice, destination, type, offers, isFavourite } = point;
+  const { type, destination, dateTo, dateFrom, price, offers, isFavourite } = point;
   const typeValue = type || 'bus';
   const hours = getTimeInHours(dateFrom, dateTo);
   const minutes = getTimeInMinutes(dateFrom, dateTo);
@@ -15,7 +15,7 @@ function createPointTemplate(point) {
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${typeValue.toLowerCase()}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${typeValue} ${destination ? destination.name : ''}</h3>
+      <h3 class="event__title">${typeValue} ${destination ? destination.city : ''}</h3>
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time" datetime="${dateFrom}">${dayjs(dateFrom).format('HH:mm')}</time>
@@ -25,7 +25,7 @@ function createPointTemplate(point) {
         <p class="event__duration">${hours} ${minutes}</p>
       </div>
       <p class="event__price">
-        &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
+        &euro;&nbsp;<span class="event__price-value">${price}</span>
       </p>
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">

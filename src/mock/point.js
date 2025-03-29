@@ -12,8 +12,8 @@ export function getMockPoint(){
   return {
     eventType: getRandomArrayElement(TYPE_POINTS),
     destination: getMockDestination(),
-    startDatetime: date.from,
-    endDatetime: date.to,
+    dateFrom: date.from,
+    dateTo: date.to,
     price: getRandomValue(),
     offers: getMockOffers(type),
     isFavorite: isFavorite,
