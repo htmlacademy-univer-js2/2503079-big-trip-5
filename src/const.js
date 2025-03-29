@@ -1,5 +1,13 @@
-import { getRandomValue } from './utils.js';
+import { getRandomValue } from './utils/common';
+
 const TYPE_POINTS = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
+
+const FILTER_TYPES = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
+};
 
 const PRICES = [90, 20, 80, 140, 100, 40, 110, 70, 130, 50];
 
@@ -74,5 +82,5 @@ for (let i = 0; i < 5; i++) {
   IMAGES.push(`${IMAGE_URL}${getRandomValue()}`);
 }
 
-export { CITIES, DATES, DESCRIPTIONS, IMAGES, OFFERS, PRICES, TYPE_POINTS };
+export { CITIES, DATES, DESCRIPTIONS, FILTER_TYPES, IMAGES, OFFERS, PRICES, TYPE_POINTS };
 

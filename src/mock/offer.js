@@ -1,5 +1,5 @@
 import { OFFERS } from '../const.js';
-import { getRandomArrayElement, getRandomUUID } from '../utils.js';
+import { getRandomArrayElement, getRandomUUID } from '../utils/common.js';
 
 export function getMockOffers() {
   const offersCount = Math.floor(Math.random() * 5 + 1);
