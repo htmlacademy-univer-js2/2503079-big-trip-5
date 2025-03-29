@@ -32,7 +32,7 @@ function createSortingTemplate() {
 }
 
 export default class SortingView extends AbstractView {
-  getTemplate() {
+  get template() {
     return createSortingTemplate();
   }
 }
