@@ -6,7 +6,7 @@ export function getRandomUUID(){
   return crypto.randomUUID();
 }
 
-export function getRandomValue(lower = 0, upper = 1000) {
+export function getRandomValue(lower, upper) {
   return Math.round((upper - lower) * Math.random() + lower);
 }
 

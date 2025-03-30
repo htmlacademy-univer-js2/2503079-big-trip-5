@@ -1,12 +1,24 @@
 import { getRandomValue } from './utils/common';
 
+export const DateFormat = {
+  LONG: 'YYYY-MM-DDTHH:mm',
+  SHORT: 'MMM DD',
+  TIME: 'HH:mm'
+};
+
+const MS_IN_DAY = 86400000;
+
+const MS_IN_HOUR = 3600000;
+
 const TYPE_POINTS = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
 
-const FILTER_TYPES = {
-  EVERYTHING: 'everything',
-  FUTURE: 'future',
-  PRESENT: 'present',
-  PAST: 'past'
+const FILTERS = ['Everything', 'Future', 'Present', 'Past'];
+const SORTS = ['Day', 'Event', 'Time', 'Price', 'Offers'];
+const FilterMessages = {
+  'Everything': 'Click New Event to create your first point',
+  'Future': 'There are no future events now',
+  'Present': 'There are no present events now',
+  'Past': 'There are no past events now'
 };
 
 const PRICES = [90, 20, 80, 140, 100, 40, 110, 70, 130, 50];
@@ -82,5 +94,5 @@ for (let i = 0; i < 5; i++) {
   IMAGES.push(`${IMAGE_URL}${getRandomValue()}`);
 }
 
-export { CITIES, DATES, DESCRIPTIONS, FILTER_TYPES, IMAGES, OFFERS, PRICES, TYPE_POINTS };
+export { CITIES, DATES, DESCRIPTIONS, FilterMessages, FILTERS, IMAGES, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, SORTS, TYPE_POINTS };
 
