@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
-
+import duration from 'dayjs/plugin/duration';
+import { DateFormat, MS_IN_DAY, MS_IN_HOUR } from '../const.js';
+dayjs.extend(duration);
 export function getTime(date) {
   return dayjs(date).format('hh:mm');
 }
@@ -27,3 +29,21 @@ export const isPastEvent = (date) => dayjs(date).isBefore(dayjs());
 export const isPresentEvent = (dateFrom, dateTo) => dayjs(dateFrom).isBefore(dayjs()) && dayjs(dateTo).isAfter(dayjs());
 
 export const isFutureEvent = (date) => dayjs(date).isAfter(dayjs());
+
+export const formatToLongDate = (dueDate) => dueDate ? dayjs(dueDate).format(DateFormat.LONG) : '';
+
+export const formatToShortDate = (time) => time ? dayjs(time).format(DateFormat.SHORT) : '';
+
+export const formatToShortTime = (time) => time ? dayjs(time).format(DateFormat.TIME) : '';
+
+export const getDuration = (dateFrom, dateTo) => {
+  const timeDifference = dayjs(dateTo).diff(dayjs(dateFrom));
+
+  if (timeDifference >= MS_IN_DAY) {
+    return dayjs.duration(timeDifference).format('DD[D] HH[H] mm[M]');
+  } else if (timeDifference >= MS_IN_HOUR) {
+    return dayjs.duration(timeDifference).format('HH[H] mm[M]');
+  } else if (timeDifference < MS_IN_HOUR) {
+    return dayjs.duration(timeDifference).format('mm[M]');
+  }
+};

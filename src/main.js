@@ -1,19 +1,17 @@
-import {
-  render,
-  RenderPosition
-} from './framework/render.js';
+
 import DestinationsModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
 import PointsModel from './model/points-model.js';
 import PointsPresenter from './presenter/trip-presenter.js';
-import FiltersView from './view/filter-view.js';
-import TripInfoView from './view/trip-view.js';
-const tripMainContainer = document.querySelector('.trip-main');
-const tripEventsContainer = document.querySelector('.trip-events');
-const filtersContainer = tripMainContainer.querySelector('.trip-controls__filters');
-const pointsModel = new PointsModel();
-const offersModel = new OffersModel();
-const destinationsModel = new DestinationsModel();
+import MockService from './service/mock-service.js';
+const bodyElement = document.querySelector('body');
+const mainContainer = bodyElement.querySelector('.page-main');
+const tripEventsContainer = mainContainer.querySelector('.trip-events');
+
+const mockService = new MockService();
+const pointsModel = new PointsModel(mockService);
+const offersModel = new OffersModel(mockService);
+const destinationsModel = new DestinationsModel(mockService);
 const pointsPresenter = new PointsPresenter({
   tripEventsContainer,
   pointsModel,
@@ -21,7 +19,5 @@ const pointsPresenter = new PointsPresenter({
   destinationsModel
 });
 
-render(new TripInfoView(), tripMainContainer, RenderPosition.AFTERBEGIN);
-render(new FiltersView(), filtersContainer);
 
 pointsPresenter.init();
