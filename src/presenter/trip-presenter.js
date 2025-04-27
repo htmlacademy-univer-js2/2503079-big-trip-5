@@ -1,13 +1,12 @@
 import { FILTERS } from '../const.js';
-import { render, RenderPosition, replace } from '../framework/render.js';
-import { getRandomArrayElement } from '../utils/common.js';
-import EditPointView from '../view/edit-point-view.js';
+import { render, RenderPosition } from '../framework/render.js';
+import { getRandomArrayElement, updateItem } from '../utils/common.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FilterView from '../view/filter-view.js';
-import PointView from '../view/point-view.js';
 import PointListView from '../view/points-list-view.js';
 import SortView from '../view/sort-view.js';
 import TripInfoView from '../view/trip-view.js';
+import PointPresenter from './point-presenter.js';
 
 const bodyElement = document.querySelector('body');
 const headerElement = bodyElement.querySelector('.page-header');
@@ -22,6 +21,7 @@ export default class Presenter {
   #offersModel = null;
   #destinationsModel = null;
   #tripPoints = null;
+  #pointPresenters = new Map();
 
   constructor({
     tripEventsContainer,
@@ -35,70 +35,54 @@ export default class Presenter {
     this.#tripPoints = pointsModel.points;
   }
 
-  #renderPoint = (point, destination, offers) => {
-    const pointComponent = new PointView(
-      point,
-      destination,
-      offers,
-      onRollupButtonClick);
-
-    const pointEditComponent = new EditPointView(point,
-      destination,
-      offers,
-      onResetButtonClick,
-      onSaveButtonSubmit);
-
-    const removeHandlerOnEscape = () => document.removeEventListener('keydown', onEscapeKeyDown);
-
-    function onSaveButtonSubmit(evt) {
-      evt.preventDefault();
-      replace(pointComponent, pointEditComponent);
-      removeHandlerOnEscape();
+  #renderPoint = () => {
+    for (let i = 0; i < this.#tripPoints.length; i++) {
+      const point = this.#tripPoints[i];
+      const pointPresenter = new PointPresenter(this.#destinationsModel,
+        this.#offersModel,
+        this.#listComponent,
+        this.#pointChangeHandler,
+        this.#modeChangeHandler);
+      pointPresenter.init(point);
+      this.#pointPresenters.set(point.id, pointPresenter);
     }
-
-    function onEscapeKeyDown(evt) {
-      if (evt.key === 'Escape') {
-        replace(pointComponent, pointEditComponent);
-        removeHandlerOnEscape();
-      }
-    }
-
-    function onRollupButtonClick() {
-      replace(pointEditComponent, pointComponent);
-      document.addEventListener('keydown', onEscapeKeyDown);
-    }
-
-    function onResetButtonClick() {
-      replace(pointComponent, pointEditComponent);
-      removeHandlerOnEscape();
-    }
-
-    render(pointComponent, this.#listComponent.element);
   };
 
-  init() {
+  #renderTripInfo() {
+    render(new TripInfoView(
+      this.#tripPoints.map((point) => (
+        this.#destinationsModel.getById(point.destination))),
+      this.#tripPoints), tripInfoElement, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderBoard() {
     const filter = getRandomArrayElement(FILTERS);
 
     render(new FilterView(filter), filterElement);
 
     if (this.#tripPoints.length) {
-      render(new TripInfoView(
-        this.#tripPoints.map((point) => (
-          this.#destinationsModel.getById(point.destination))),
-        this.#tripPoints), tripInfoElement, RenderPosition.AFTERBEGIN);
-
+      this.#renderTripInfo();
       render(this.#sortingComponent, this.#tripEventsContainer);
-      render(this.#listComponent , this.#tripEventsContainer);
+      render(this.#listComponent, this.#tripEventsContainer);
 
-      for (let i = 0; i < this.#tripPoints.length; i++) {
-        this.#renderPoint(
-          this.#tripPoints[i],
-          this.#destinationsModel.getById(this.#tripPoints[i].destination),
-          this.#offersModel.getByType(this.#tripPoints[i].eventType));
-      }
-    } else {
-      render(this.#listComponent , this.#tripEventsContainer);
-      render(new EmptyListView(filter), this.#listComponent.element);
+      this.#renderPoint();
+
+      return;
     }
+    render(this.#listComponent, this.#tripEventsContainer);
+    render(new EmptyListView(filter), this.#listComponent.element);
+  }
+
+  #pointChangeHandler = (updatedPoint) => {
+    this.#tripPoints = updateItem(this.#tripPoints, updatedPoint);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
+  };
+
+  #modeChangeHandler = () => {
+    this.#pointPresenters.forEach((p) => p.resetView());
+  };
+
+  init() {
+    this.#renderBoard();
   }
 }

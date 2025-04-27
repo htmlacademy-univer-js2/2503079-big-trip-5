@@ -94,5 +94,10 @@ for (let i = 0; i < 5; i++) {
   IMAGES.push(`${IMAGE_URL}${getRandomValue()}`);
 }
 
-export { CITIES, DATES, DESCRIPTIONS, FilterMessages, FILTERS, IMAGES, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, SORTS, TYPE_POINTS };
+const MODE = {
+  DEFAULT: 'default',
+  EDIT: 'edit'
+};
+
+export { CITIES, DATES, DESCRIPTIONS, FilterMessages, FILTERS, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, SORTS, TYPE_POINTS };
 
