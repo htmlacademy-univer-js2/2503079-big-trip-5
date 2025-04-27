@@ -11,3 +11,13 @@ export function getRandomValue(lower, upper) {
 }
 
 export const getRandomPositiveNumber = (max) => Math.ceil(Math.random() * max);
+
+export const updateItem = (items, update) => items.map((item) => item.id === update.id ? update : item);
+
+export const removeHandlerOnEscape = (cb) => document.removeEventListener('keydown', cb);
+
+export const onEscapeKeyDown = (evt) => {
+  if (evt.key === 'Escape') {
+    removeHandlerOnEscape(onEscapeKeyDown);
+  }
+};
