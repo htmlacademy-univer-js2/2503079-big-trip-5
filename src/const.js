@@ -13,7 +13,13 @@ const MS_IN_HOUR = 3600000;
 const TYPE_POINTS = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
 
 const FILTERS = ['Everything', 'Future', 'Present', 'Past'];
-const SORTS = ['Day', 'Event', 'Time', 'Price', 'Offers'];
+const Sorts = {
+  DAY: 'Day',
+  EVENT: 'Event',
+  TIME: 'Time',
+  PRICE: 'Price',
+  OFFERS: 'Offers'
+};
 const FilterMessages = {
   'Everything': 'Click New Event to create your first point',
   'Future': 'There are no future events now',
@@ -99,5 +105,5 @@ const MODE = {
   EDIT: 'edit'
 };
 
-export { CITIES, DATES, DESCRIPTIONS, FilterMessages, FILTERS, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, SORTS, TYPE_POINTS };
+export { CITIES, DATES, DESCRIPTIONS, FilterMessages, FILTERS, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, Sorts, TYPE_POINTS };
 
