@@ -99,7 +99,7 @@ function createPointEditTemplate (point, destination, offers) {
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Cancel</button>
+      <button class="event__reset-btn" type="reset">Delete</button>
     </header>
     <section class="event__details">
       <section class="event__section  event__section--offers">

@@ -1,12 +1,14 @@
-import { FILTERS } from '../const.js';
+import { FILTERS, Sorts } from '../const.js';
 import { render, RenderPosition } from '../framework/render.js';
 import { getRandomArrayElement, updateItem } from '../utils/common.js';
+import { sort } from '../utils/sort.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FilterView from '../view/filter-view.js';
 import PointListView from '../view/points-list-view.js';
 import SortView from '../view/sort-view.js';
 import TripInfoView from '../view/trip-view.js';
 import PointPresenter from './point-presenter.js';
+import SortPresenter from './sort-presenter.js';
 
 const bodyElement = document.querySelector('body');
 const headerElement = bodyElement.querySelector('.page-header');
@@ -22,6 +24,7 @@ export default class Presenter {
   #destinationsModel = null;
   #tripPoints = null;
   #pointPresenters = new Map();
+  #currentSortType = Sorts.DAY;
 
   constructor({
     tripEventsContainer,
@@ -32,12 +35,11 @@ export default class Presenter {
     this.#tripEventsContainer = tripEventsContainer;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
-    this.#tripPoints = pointsModel.points;
+    this.#tripPoints = sort[Sorts.DAY](pointsModel.points);
   }
 
   #renderPoint = () => {
-    for (let i = 0; i < this.#tripPoints.length; i++) {
-      const point = this.#tripPoints[i];
+    this.#tripPoints.forEach((point) => {
       const pointPresenter = new PointPresenter(this.#destinationsModel,
         this.#offersModel,
         this.#listComponent,
@@ -45,7 +47,7 @@ export default class Presenter {
         this.#modeChangeHandler);
       pointPresenter.init(point);
       this.#pointPresenters.set(point.id, pointPresenter);
-    }
+    });
   };
 
   #renderTripInfo() {
@@ -55,6 +57,35 @@ export default class Presenter {
       this.#tripPoints), tripInfoElement, RenderPosition.AFTERBEGIN);
   }
 
+  #removePointPresenters() {
+    this.#pointPresenters.forEach((point) => {
+      point.removeComponent();
+    });
+
+    this.#pointPresenters = new Map();
+  }
+
+  #onSortComponentClick = (evt) => {
+    if (this.#currentSortType !== evt.target.textContent) {
+      this.#currentSortType = evt.target.textContent;
+
+      sort[this.#currentSortType](this.#tripPoints);
+
+      this.#removePointPresenters();
+      this.#renderPoint();
+    }
+  };
+
+  #renderSort() {
+    const sortPresenter = new SortPresenter(
+      this.#onSortComponentClick,
+      this.#tripEventsContainer
+    );
+
+    sortPresenter.init();
+  }
+
+
   #renderBoard() {
     const filter = getRandomArrayElement(FILTERS);
 
@@ -62,7 +93,7 @@ export default class Presenter {
 
     if (this.#tripPoints.length) {
       this.#renderTripInfo();
-      render(this.#sortingComponent, this.#tripEventsContainer);
+      this.#renderSort();
       render(this.#listComponent, this.#tripEventsContainer);
 
       this.#renderPoint();
