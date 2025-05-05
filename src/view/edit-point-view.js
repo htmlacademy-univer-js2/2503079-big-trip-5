@@ -1,4 +1,7 @@
-import { CITIES, TYPE_POINTS } from '../const.js';
+import dayjs from 'dayjs';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+import { CITIES, DateFormat, TYPE_POINTS } from '../const.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 function createPicturesTemplate (pictures){
@@ -133,6 +136,8 @@ export default class EditPointView extends AbstractStatefulView {
   #onSubmit = null;
   #onCloseButtonClick = null;
   #allOffers = null;
+  #dateFromPicker = null;
+  #dateToPicker = null;
 
   constructor(point = {
     basePrice: 0,
@@ -158,6 +163,7 @@ export default class EditPointView extends AbstractStatefulView {
     });
 
     this._restoreHandlers();
+    this.#setDatepicker();
   }
 
   get template() {
@@ -167,6 +173,16 @@ export default class EditPointView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onCloseButtonClick);
     this.element.querySelector('form').addEventListener('submit', this.#onSubmit);
+
+    const typeToggle = this.element.querySelector('.event__type-toggle');
+    if (typeToggle) {
+      typeToggle.addEventListener('change', () => {
+        const typeList = this.element.querySelector('.event__type-list');
+        if (typeList) {
+          typeList.classList.toggle('event__type-list--opened');
+        }
+      });
+    }
 
     const typeInputs = this.element.querySelectorAll('.event__type-input');
     typeInputs.forEach((input) => {
@@ -192,14 +208,35 @@ export default class EditPointView extends AbstractStatefulView {
     const typeOffers = this.#allOffers.find((offer) => offer.type.toLowerCase() === newType.toLowerCase());
     const newOffers = typeOffers ? typeOffers.offers : [];
 
-    this.updateElement({
+    this._setState({
       point: {
         ...this._state.point,
         type: newType,
         offers: []
       },
+      destination: this._state.destination,
       offers: newOffers
     });
+
+    const typeIcon = this.element.querySelector('.event__type-icon');
+    if (typeIcon) {
+      typeIcon.src = `img/icons/${newType}.png`;
+    }
+
+    const typeLabel = this.element.querySelector('.event__type-output');
+    if (typeLabel) {
+      typeLabel.textContent = newType;
+    }
+
+    const typeList = this.element.querySelector('.event__type-list');
+    if (typeList) {
+      typeList.classList.remove('event__type-list--opened');
+    }
+
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.innerHTML = createOffersTemplate(newOffers, []);
+    }
   };
 
   #onDestinationChange = (evt) => {
@@ -255,4 +292,92 @@ export default class EditPointView extends AbstractStatefulView {
       });
     }
   };
+
+  updateElement(update) {
+    const prevState = this._state;
+    this._setState(update);
+
+    if (prevState.point.dateFrom !== this._state.point.dateFrom ||
+        prevState.point.dateTo !== this._state.point.dateTo) {
+      this.#setDatepicker();
+    }
+  }
+
+  #setDatepicker() {
+    const dateFromInput = this.element.querySelector('#event-start-time-1');
+    const dateToInput = this.element.querySelector('#event-end-time-1');
+
+    if (this.#dateFromPicker) {
+      this.#dateFromPicker.destroy();
+    }
+    if (this.#dateToPicker) {
+      this.#dateToPicker.destroy();
+    }
+
+    const commonConfig = {
+      enableTime: true,
+      dateFormat: 'd/m/y H:i',
+      time24hr: true,
+      locale: {
+        firstDayOfWeek: 1
+      },
+      parseDate: function(date) {
+        return flatpickr.parseDate(date, 'Y-m-d\\TH:i');
+      }
+    };
+
+    const defaultDateFrom = this._state.point.dateFrom;
+    const defaultDateTo = this._state.point.dateTo;
+
+    dateFromInput.value = dayjs(defaultDateFrom).format(DateFormat.TIME);
+    dateToInput.value = dayjs(defaultDateTo).format(DateFormat.TIME);
+
+    this.#dateFromPicker = flatpickr(dateFromInput, {
+      ...commonConfig,
+      defaultDate: defaultDateFrom,
+      maxDate: defaultDateTo,
+      onClose: ([selectedDate]) => {
+        const formattedDate = dayjs(selectedDate).format(DateFormat.LONG);
+        this.updateElement({
+          point: {
+            ...this._state.point,
+            dateFrom: formattedDate
+          }
+        });
+        if (this.#dateToPicker) {
+          this.#dateToPicker.set('minDate', selectedDate);
+        }
+      }
+    });
+
+    this.#dateToPicker = flatpickr(dateToInput, {
+      ...commonConfig,
+      defaultDate: defaultDateTo,
+      minDate: defaultDateFrom,
+      onClose: ([selectedDate]) => {
+        const formattedDate = dayjs(selectedDate).format(DateFormat.LONG);
+        this.updateElement({
+          point: {
+            ...this._state.point,
+            dateTo: formattedDate
+          }
+        });
+        if (this.#dateFromPicker) {
+          this.#dateFromPicker.set('maxDate', selectedDate);
+        }
+      }
+    });
+  }
+
+  removeElement() {
+    if (this.#dateFromPicker) {
+      this.#dateFromPicker.destroy();
+      this.#dateFromPicker = null;
+    }
+    if (this.#dateToPicker) {
+      this.#dateToPicker.destroy();
+      this.#dateToPicker = null;
+    }
+    super.removeElement();
+  }
 }
