@@ -54,10 +54,11 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #onSaveButtonSubmit = (evt) => {
-    evt.preventDefault();
-
-    this.#replaceFormToPoint(evt);
+  #onSaveButtonSubmit = (update, closeForm = true) => {
+    this.#pointChangeHandler(update);
+    if (closeForm) {
+      this.#replaceFormToPoint();
+    }
   };
 
   #onRollupButtonClick = () => {
@@ -85,12 +86,12 @@ export default class PointPresenter {
       point,
       destination,
       offers,
+      this.#offersModel.get(),
       this.#onResetButtonClick,
       this.#onSaveButtonSubmit);
 
     if (!(this.#prevPointComponent && this.#prevPointEditComponent)) {
       render(this.#pointComponent, this.#eventListComponent.element);
-
       return;
     }
 
@@ -103,7 +104,7 @@ export default class PointPresenter {
     this.#renderPoint(
       this.#point,
       this.#destinationsModel.getById(this.#point.destination),
-      this.#offersModel.getByType(this.#point.eventType),
+      this.#offersModel.getByType(this.#point.type),
       this.#pointChangeHandler);
   }
 

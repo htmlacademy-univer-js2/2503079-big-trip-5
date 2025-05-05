@@ -1,5 +1,5 @@
 import { CITIES, TYPE_POINTS } from '../const.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 function createPicturesTemplate (pictures){
   let result = '';
@@ -11,14 +11,14 @@ function createPicturesTemplate (pictures){
   return result;
 }
 
-function createEventTypeTemplate (){
+function createEventTypeTemplate (currentType) {
   let result = '';
   let typeL = '';
 
   for (let i = 0; i < TYPE_POINTS.length; i++) {
     typeL = TYPE_POINTS[i].toLowerCase();
     result += `<div class="event__type-item">
-    <input id="event-type-${typeL}-${i + 1}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${typeL}">
+    <input id="event-type-${typeL}-${i + 1}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${typeL}" ${currentType === typeL ? 'checked' : ''}>
     <label class="event__type-label  event__type-label--${typeL}" for="event-type-${typeL}-${i + 1}">${TYPE_POINTS[i]}</label>
   </div>`;
   }
@@ -36,13 +36,14 @@ function createDestinationList () {
   return result;
 }
 
-function createOffersTemplate (offers) {
+function createOffersTemplate (offers, selectedOffers) {
   let result = '';
 
   for (let i = 0; i < offers.length; i++) {
+    const isChecked = selectedOffers.some((offer) => offer.id === offers[i].id);
     result += `<div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${i + 1}" type="checkbox" name="event-offer-luggage" checked>
-    <label class="event__offer-label" for="event-offer-luggage-${i + 1}">
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offers[i].id}" type="checkbox" name="event-offer" value="${offers[i].id}" ${isChecked ? 'checked' : ''}>
+    <label class="event__offer-label" for="event-offer-${offers[i].id}">
       <span class="event__offer-title">${offers[i].title}</span>
       &plus;&euro;&nbsp;
       <span class="event__offer-price">${offers[i].price}</span>
@@ -60,34 +61,34 @@ function createPointEditTemplate (point, destination, offers) {
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/${point.eventType}.png" alt="Event type icon">
+          <img class="event__type-icon" width="17" height="17" src="img/icons/${point.type}.png" alt="Event type icon">
         </label>
         <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
-            ${createEventTypeTemplate(offers, point.eventType)}
+            ${createEventTypeTemplate(point.type)}
           </fieldset>
         </div>
       </div>
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${point.eventType}
+          ${point.type}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
         <datalist id="destination-list-1">
-          ${createDestinationList(destination)}
+          ${createDestinationList()}
         </datalist>
       </div>
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="19/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${point.dateFrom}">
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="19/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${point.dateTo}">
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -95,7 +96,7 @@ function createPointEditTemplate (point, destination, offers) {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.basePrice}">
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -106,7 +107,7 @@ function createPointEditTemplate (point, destination, offers) {
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
         <div class="event__available-offers">
-          ${createOffersTemplate(offers)}
+          ${createOffersTemplate(offers, point.offers)}
         </div>
       </section>
 
@@ -125,13 +126,13 @@ function createPointEditTemplate (point, destination, offers) {
   </li>`);
 }
 
-
-export default class EditPointView extends AbstractView {
+export default class EditPointView extends AbstractStatefulView {
   #point = null;
   #pointDestination = null;
   #pointOffers = null;
   #onSubmit = null;
   #onCloseButtonClick = null;
+  #allOffers = null;
 
   constructor(point = {
     basePrice: 0,
@@ -141,19 +142,117 @@ export default class EditPointView extends AbstractView {
     isFavorite: false,
     offers: [],
     type: 'flight'
-  }, pointDestination, pointOffers, onSubmit, onCloseButtonClick) {
+  }, pointDestination, pointOffers, allOffers, onSubmit, onCloseButtonClick) {
     super();
     this.#point = point;
     this.#pointDestination = pointDestination;
     this.#pointOffers = pointOffers;
+    this.#allOffers = allOffers;
     this.#onSubmit = onSubmit;
     this.#onCloseButtonClick = onCloseButtonClick;
 
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onCloseButtonClick);
-    this.element.querySelector('form').addEventListener('submit', this.#onSubmit);
+    this._setState({
+      point: this.#point,
+      destination: this.#pointDestination,
+      offers: this.#pointOffers
+    });
+
+    this._restoreHandlers();
   }
 
   get template() {
-    return createPointEditTemplate(this.#point, this.#pointDestination, this.#pointOffers);
+    return createPointEditTemplate(this._state.point, this._state.destination, this._state.offers);
   }
+
+  _restoreHandlers() {
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onCloseButtonClick);
+    this.element.querySelector('form').addEventListener('submit', this.#onSubmit);
+
+    const typeInputs = this.element.querySelectorAll('.event__type-input');
+    typeInputs.forEach((input) => {
+      input.addEventListener('change', this.#onTypeChange);
+    });
+
+    const destinationInput = this.element.querySelector('.event__input--destination');
+    destinationInput.addEventListener('change', this.#onDestinationChange);
+
+    const offerInputs = this.element.querySelectorAll('.event__offer-checkbox');
+    offerInputs.forEach((input) => {
+      input.addEventListener('change', this.#onOfferChange);
+    });
+
+    const priceInput = this.element.querySelector('.event__input--price');
+    priceInput.addEventListener('change', this.#onPriceChange);
+  }
+
+  #onTypeChange = (evt) => {
+    evt.preventDefault();
+    const newType = evt.target.value;
+
+    const typeOffers = this.#allOffers.find((offer) => offer.type.toLowerCase() === newType.toLowerCase());
+    const newOffers = typeOffers ? typeOffers.offers : [];
+
+    this.updateElement({
+      point: {
+        ...this._state.point,
+        type: newType,
+        offers: []
+      },
+      offers: newOffers
+    });
+  };
+
+  #onDestinationChange = (evt) => {
+    evt.preventDefault();
+    const newDestinationName = evt.target.value;
+    const newDestination = CITIES.find((city) => city.name === newDestinationName);
+
+    if (newDestination) {
+      this.updateElement({
+        point: {
+          ...this._state.point,
+          destination: newDestination.id
+        },
+        destination: newDestination
+      });
+    }
+  };
+
+  #onOfferChange = (evt) => {
+    evt.preventDefault();
+    const offerId = evt.target.value;
+    const isChecked = evt.target.checked;
+
+    let newOffers = [...this._state.point.offers];
+
+    if (isChecked) {
+      const offer = this._state.offers.find((o) => o.id === offerId);
+      if (offer) {
+        newOffers.push(offer);
+      }
+    } else {
+      newOffers = newOffers.filter((o) => o.id !== offerId);
+    }
+
+    this.updateElement({
+      point: {
+        ...this._state.point,
+        offers: newOffers
+      }
+    });
+  };
+
+  #onPriceChange = (evt) => {
+    evt.preventDefault();
+    const newPrice = parseInt(evt.target.value, 10);
+
+    if (!isNaN(newPrice)) {
+      this.updateElement({
+        point: {
+          ...this._state.point,
+          basePrice: newPrice
+        }
+      });
+    }
+  };
 }
