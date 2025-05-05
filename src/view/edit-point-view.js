@@ -168,23 +168,19 @@ export default class EditPointView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onCloseButtonClick);
     this.element.querySelector('form').addEventListener('submit', this.#onSubmit);
 
-    // Add type change handler
     const typeInputs = this.element.querySelectorAll('.event__type-input');
     typeInputs.forEach((input) => {
       input.addEventListener('change', this.#onTypeChange);
     });
 
-    // Add destination change handler
     const destinationInput = this.element.querySelector('.event__input--destination');
     destinationInput.addEventListener('change', this.#onDestinationChange);
 
-    // Add offers change handler
     const offerInputs = this.element.querySelectorAll('.event__offer-checkbox');
     offerInputs.forEach((input) => {
       input.addEventListener('change', this.#onOfferChange);
     });
 
-    // Add price change handler
     const priceInput = this.element.querySelector('.event__input--price');
     priceInput.addEventListener('change', this.#onPriceChange);
   }
@@ -193,18 +189,16 @@ export default class EditPointView extends AbstractStatefulView {
     evt.preventDefault();
     const newType = evt.target.value;
 
-    // Находим offers для нового типа точки
     const typeOffers = this.#allOffers.find((offer) => offer.type.toLowerCase() === newType.toLowerCase());
     const newOffers = typeOffers ? typeOffers.offers : [];
 
-    // Обновляем состояние с новым типом и новыми offers
     this.updateElement({
       point: {
         ...this._state.point,
         type: newType,
-        offers: [] // Сбрасываем выбранные offers при смене типа
+        offers: []
       },
-      offers: newOffers // Обновляем список доступных offers
+      offers: newOffers
     });
   };
 
