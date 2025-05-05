@@ -9,7 +9,7 @@ export function getMockPoint(type, destinationId, offersIds){
   const point = {
     id: getRandomUUID(),
     basePrice: getRandomValue(100, 1000),
-    eventType: type,
+    type: type,
     destination: destinationId,
     dateFrom: date.from,
     dateTo: date.to,

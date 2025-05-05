@@ -30,9 +30,9 @@ const createPointTemplate = (point, destination, offers) => `
   <div class="event">
     <time class="event__date" datetime="${point.dateTo}">${formatToShortDate(point.dateTo)}</time>
     <div class="event__type">
-      <img class="event__type-icon" width="42" height="42" src="img/icons/${point.eventType}.png" alt="Event type icon">
+      <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
     </div>
-    <h3 class="event__title">${point.eventType} ${destination.name}</h3>
+    <h3 class="event__title">${point.type} ${destination.name}</h3>
     <div class="event__schedule">
       <p class="event__time">
         <time class="event__start-time" datetime="${point.dateTo}">${formatToShortTime(point.dateTo)}</time>
