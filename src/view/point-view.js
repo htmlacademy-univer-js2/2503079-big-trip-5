@@ -1,6 +1,8 @@
+import dayjs from 'dayjs';
+import { DateFormat } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
-import { formatToShortDate, formatToShortTime, getDuration } from '../utils/point.js';
+import { getDuration } from '../utils/point.js';
 
 const createFavoriteButtonTemplate = (isFavorite) => `
   <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
@@ -28,16 +30,16 @@ const createOfferTemplate = (offers) => {
 const createPointTemplate = (point, destination, offers) => `
   <li class="trip-events__item">
   <div class="event">
-    <time class="event__date" datetime="${point.dateTo}">${formatToShortDate(point.dateTo)}</time>
+    <time class="event__date" datetime="${point.dateFrom}">${dayjs(point.dateFrom).format(DateFormat.SHORT)}</time>
     <div class="event__type">
       <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
     </div>
     <h3 class="event__title">${point.type} ${destination.name}</h3>
     <div class="event__schedule">
       <p class="event__time">
-        <time class="event__start-time" datetime="${point.dateTo}">${formatToShortTime(point.dateTo)}</time>
+        <time class="event__start-time" datetime="${point.dateFrom}">${dayjs(point.dateFrom).format(DateFormat.TIME)}</time>
         &mdash;
-        <time class="event__end-time" datetime="${point.dateFrom}">${formatToShortTime(point.dateFrom)}</time>
+        <time class="event__end-time" datetime="${point.dateTo}">${dayjs(point.dateTo).format(DateFormat.TIME)}</time>
       </p>
       <p class="event__duration">${getDuration(point.dateFrom, point.dateTo)}</p>
     </div>

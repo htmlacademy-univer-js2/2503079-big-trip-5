@@ -2,8 +2,9 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { DateFormat, MS_IN_DAY, MS_IN_HOUR } from '../const.js';
 dayjs.extend(duration);
+
 export function getTime(date) {
-  return dayjs(date).format('hh:mm');
+  return dayjs(date).format('HH:mm');
 }
 
 export function getMonthAndDay(date) {
@@ -11,7 +12,7 @@ export function getMonthAndDay(date) {
 }
 
 export function getFullDate(date) {
-  return dayjs(date).format('DD/MM/YY hh:mm');
+  return dayjs(date).format('DD/MM/YY HH:mm');
 }
 
 export function getTimeInHours(startTime, endTime) {
