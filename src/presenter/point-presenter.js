@@ -1,14 +1,16 @@
 import EditPointView from '../view/edit-point-view.js';
 import PointView from '../view/point-view.js';
 
-import { MODE } from '../const.js';
-
 import { remove, render, replace } from '../framework/render.js';
-import { onEscapeKeyDown, removeHandlerOnEscape } from '../utils/common.js';
+
+const POINT_MODE = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING'
+};
 
 export default class PointPresenter {
 
-  #mode = MODE.DEFAULT;
+  #mode = POINT_MODE.DEFAULT;
 
   #destinationsModel = null;
   #offersModel = null;
@@ -33,32 +35,25 @@ export default class PointPresenter {
   }
 
   #replaceFormToPoint = () => {
-    this.#mode = MODE.DEFAULT;
-
+    this.#mode = POINT_MODE.DEFAULT;
     replace(this.#pointComponent, this.#pointEditComponent);
-    removeHandlerOnEscape(this.#onEscapeKeyDown);
   };
 
   #replacePointToForm = () => {
     this.#modeChangeHandler();
-
-    this.#mode = MODE.EDIT;
-
+    this.#mode = POINT_MODE.EDITING;
     replace(this.#pointEditComponent, this.#pointComponent);
-    document.addEventListener('keydown', this.#onEscapeKeyDown);
   };
 
-  #onEscapeKeyDown = (evt) => {
-    onEscapeKeyDown(evt);
-
-    this.#replaceFormToPoint();
-  };
-
-  #onSaveButtonSubmit = (update, closeForm = true) => {
-    this.#pointChangeHandler(update);
-    if (closeForm) {
-      this.#replaceFormToPoint();
-    }
+  #onSaveButtonSubmit = (update) => {
+    const updatedPoint = {
+      ...this.#point,
+      ...update,
+      type: update.type || this.#point.type,
+      destination: update.destination || this.#point.destination,
+      offers: update.offers || this.#point.offers
+    };
+    this.#pointChangeHandler('UPDATE_TASK', 'MINOR', updatedPoint);
   };
 
   #onRollupButtonClick = () => {
@@ -69,48 +64,75 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #renderPoint = (point, destination, offers, pointChangeHandler) => {
+  #onDeleteButtonClick = (point) => {
+    this.#pointChangeHandler('DELETE_TASK', 'MINOR', point);
+    this.#replaceFormToPoint();
+  };
+
+  #onFavoriteButtonClick = () => {
+    this.#pointChangeHandler('UPDATE_TASK', 'MINOR', {
+      ...this.#point,
+      isFavorite: !this.#point.isFavorite
+    });
+  };
+
+  #renderPoint = (point, destination, offers) => {
     this.#prevPointComponent = this.#pointComponent;
     this.#prevPointEditComponent = this.#pointEditComponent;
 
-    const onFavoriteButtonCLick = () => pointChangeHandler({...point, isFavorite: !point.isFavorite});
+    if (!destination) {
+      destination = this.#destinationsModel.getById(point.destination);
+    }
 
     this.#pointComponent = new PointView(
       point,
       destination,
       offers,
       this.#onRollupButtonClick,
-      onFavoriteButtonCLick);
+      this.#onFavoriteButtonClick
+    );
 
-    this.#pointEditComponent = new EditPointView(
+    this.#pointEditComponent = new EditPointView({
       point,
       destination,
       offers,
-      this.#offersModel.get(),
-      this.#onResetButtonClick,
-      this.#onSaveButtonSubmit);
+      allOffers: this.#offersModel.get(),
+      onSaveClick: this.#onSaveButtonSubmit,
+      onRollUpClick: this.#onResetButtonClick,
+      onDeleteClick: this.#onDeleteButtonClick
+    });
 
     if (!(this.#prevPointComponent && this.#prevPointEditComponent)) {
       render(this.#pointComponent, this.#eventListComponent.element);
       return;
     }
 
-    replace(this.#pointComponent, this.#prevPointComponent);
+    if (this.#mode === POINT_MODE.DEFAULT) {
+      replace(this.#pointComponent, this.#prevPointComponent);
+    }
+
+    if (this.#mode === POINT_MODE.EDITING) {
+      replace(this.#pointEditComponent, this.#prevPointEditComponent);
+    }
   };
 
   init(point) {
     this.#point = point;
+    const destination = this.#destinationsModel.getById(point.destination);
+    const offers = this.#offersModel.getByType(point.type);
 
-    this.#renderPoint(
-      this.#point,
-      this.#destinationsModel.getById(this.#point.destination),
-      this.#offersModel.getByType(this.#point.type),
-      this.#pointChangeHandler);
+    if (!destination) {
+      console.error(`Destination not found for point ${point.id}`);
+      return;
+    }
+
+    this.#renderPoint(point, destination, offers);
   }
 
   resetView = () => {
-    if (this.#mode === MODE.EDIT) {
-      this.#onResetButtonClick();
+    if (this.#mode !== POINT_MODE.DEFAULT) {
+      this.#pointEditComponent.reset(this.#point);
+      this.#replaceFormToPoint();
     }
   };
 

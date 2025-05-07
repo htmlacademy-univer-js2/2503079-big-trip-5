@@ -6,5 +6,8 @@ export default class OffersModel {
 
   get = () => this.offers;
 
-  getByType = (type) => this.offers.find((offer) => offer.type === type).offers;
+  getByType = (type) => {
+    const foundOffer = this.offers.find((offer) => offer.type === type);
+    return foundOffer ? foundOffer.offers : [];
+  };
 }

@@ -6,25 +6,58 @@ export const DateFormat = {
   TIME: 'HH:mm'
 };
 
+export const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
+};
+
+export const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+  INIT: 'INIT'
+};
+
 const MS_IN_DAY = 86400000;
 
 const MS_IN_HOUR = 3600000;
 
 const TYPE_POINTS = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
 
-const FILTERS = ['Everything', 'Future', 'Present', 'Past'];
-const Sorts = {
-  DAY: 'Day',
-  EVENT: 'Event',
-  TIME: 'Time',
-  PRICE: 'Price',
-  OFFERS: 'Offers'
+const FILTERS = [
+  {
+    type: 'everything',
+    name: 'Everything'
+  },
+  {
+    type: 'future',
+    name: 'Future'
+  },
+  {
+    type: 'present',
+    name: 'Present'
+  },
+  {
+    type: 'past',
+    name: 'Past'
+  }
+];
+
+export const Sorts = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFERS: 'offers'
 };
+
 const FilterMessages = {
-  'Everything': 'Click New Event to create your first point',
-  'Future': 'There are no future events now',
-  'Present': 'There are no present events now',
-  'Past': 'There are no past events now'
+  everything: 'Click New Event to create your first point',
+  future: 'There are no future events now',
+  present: 'There are no present events now',
+  past: 'There are no past events now'
 };
 
 const PRICES = [90, 20, 80, 140, 100, 40, 110, 70, 130, 50];
@@ -38,7 +71,6 @@ const OFFERS = [
   { title: 'Book tickets', price: 40 },
   { title: 'Lunch in name', price: 150 }
 ];
-
 
 const DATES = [
   {
@@ -65,24 +97,79 @@ const DATES = [
 
 const CITIES = [
   {
+    id: 'chamonix',
     name: 'Chamonix',
-    description: 'Chamonix is situated in the French Alps just north of Mont Blanc, the highest mountain in Western Europe. Between the peaks of the Aiguilles Rouges and the notable Aiguille du Midi, it borders both Switzerland and Italy. It is one of the oldest ski resorts in France, popular with alpinists and mountain enthusiasts.'
+    description: 'Chamonix, a beautiful mountain town in the French Alps, is known for its stunning views and world-class skiing.',
+    pictures: [
+      {
+        src: 'https://loremflickr.com/248/152?random=1',
+        description: 'Chamonix parliament building'
+      },
+      {
+        src: 'https://loremflickr.com/248/152?random=2',
+        description: 'Chamonix mountain view'
+      }
+    ]
   },
   {
+    id: 'geneva',
     name: 'Geneva',
-    description: 'Geneva is a French–speaking name in the south-west of Switzerland, the center of the canton of the same name, combining the peaceful tranquility of an elite holiday and the turbulent passions of political life. Tourists come here who appreciate cleanliness, peace, perfect service and do not pay attention to prices.'
+    description: 'Geneva, a global city and financial center, is known for its diplomacy and banking.',
+    pictures: [
+      {
+        src: 'https://loremflickr.com/248/152?random=3',
+        description: 'Geneva lake view'
+      },
+      {
+        src: 'https://loremflickr.com/248/152?random=4',
+        description: 'Geneva city center'
+      }
+    ]
   },
   {
+    id: 'amsterdam',
     name: 'Amsterdam',
-    description: 'Amsterdam, capital of the Netherlands! These days the name has a population of just over 790.000 inhabitants and is the largest name in the country. Amsterdam is located in the province ‘Noord-Holland’, situated in the west. It is one of the most popular destinations in Europe, receiving more than 4.5 million tourists annually.'
+    description: 'Amsterdam, the capital of the Netherlands, is known for its artistic heritage, elaborate canal system and narrow houses with gabled facades.',
+    pictures: [
+      {
+        src: 'https://loremflickr.com/248/152?random=5',
+        description: 'Amsterdam canal view'
+      },
+      {
+        src: 'https://loremflickr.com/248/152?random=6',
+        description: 'Amsterdam city center'
+      }
+    ]
   },
   {
+    id: 'moscow',
     name: 'Moscow',
-    description: 'Moscow is the capital of Russia, with striking architecture that ranges from grand palaces and cathedrals to unique museums and Russian Baroque skyscrapers. St. Basil’s Cathedral and the Kremlin are iconic landmarks, along with the top-secret nuclear hideout Bunker 42 and elegant Metro stations decorated with chandeliers, statues, and dazzling mosaics.'
+    description: 'Moscow, the capital of Russia, is known for its iconic architecture and rich history.',
+    pictures: [
+      {
+        src: 'https://loremflickr.com/248/152?random=7',
+        description: 'Moscow Kremlin'
+      },
+      {
+        src: 'https://loremflickr.com/248/152?random=8',
+        description: 'Moscow Red Square'
+      }
+    ]
   },
   {
+    id: 'new-york',
     name: 'New York',
-    description: 'New York City, name and port located at the mouth of the Hudson River, southeastern New York state, northeastern U.S. It is the largest and most influential American metropolis, encompassing Manhattan and Staten islands, the western sections of Long Island, and a small portion of the New York state mainland to the north of Manhattan.'
+    description: 'New York City, the most populous city in the United States, is known for its iconic skyline and cultural diversity.',
+    pictures: [
+      {
+        src: 'https://loremflickr.com/248/152?random=9',
+        description: 'New York Times Square'
+      },
+      {
+        src: 'https://loremflickr.com/248/152?random=10',
+        description: 'New York Central Park'
+      }
+    ]
   }
 ];
 
@@ -105,5 +192,5 @@ const MODE = {
   EDIT: 'edit'
 };
 
-export { CITIES, DATES, DESCRIPTIONS, FilterMessages, FILTERS, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, Sorts, TYPE_POINTS };
+export { CITIES, DATES, DESCRIPTIONS, FilterMessages, FILTERS, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, TYPE_POINTS };
 
