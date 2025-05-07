@@ -1,5 +1,5 @@
 import { CITIES } from '../const.js';
-import { getRandomArrayElement, getRandomUUID } from '../utils/common.js';
+import { getRandomArrayElement } from '../utils/common.js';
 
 const PICTURES_COUNT = 5;
 
@@ -7,7 +7,7 @@ export function getMockDestinations(count) {
   return Array.from({ length: count }, () => {
     const city = getRandomArrayElement(CITIES);
     return {
-      id: getRandomUUID(),
+      id: city.id,
       name: city.name,
       description: city.description,
       pictures: Array.from({ length: PICTURES_COUNT }, () => ({

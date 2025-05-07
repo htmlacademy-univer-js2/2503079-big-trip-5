@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 export function getRandomArrayElement(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
@@ -21,3 +23,5 @@ export const onEscapeKeyDown = (evt) => {
     removeHandlerOnEscape(onEscapeKeyDown);
   }
 };
+
+export const isDatesEqual = (dateA, dateB) => (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');

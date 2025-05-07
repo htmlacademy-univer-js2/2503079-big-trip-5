@@ -1,32 +1,38 @@
 import { FILTERS } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
-function createFiltersTemplate(activeFilter) {
-  let template = '';
-  let check = '';
-  FILTERS.forEach((filter) => {
-    check = activeFilter === filter ? 'checked' : 'disabled';
-    template += `<div class="trip-filters__filter">
-     <input id="filter-${filter.toLowerCase()}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${filter.toLowerCase()}" ${check}>
-     <label class="trip-filters__filter-label" for="filter-${filter.toLowerCase()}">${filter.toLowerCase()}</label>
-   </div>`;
-  });
-  return `<form class="trip-filters" action="#" method="get">
-     ${template}
-     <button class="visually-hidden" type="submit">Accept filter</button>
-   </form>
-   `;
-}
-
 export default class FilterView extends AbstractView {
-  #filter = false;
+  #currentFilterType = null;
+  #onFilterTypeChange = null;
 
-  constructor(activeFilter) {
+  constructor({ currentFilterType, onFilterTypeChange }) {
     super();
-    this.#filter = activeFilter;
+    this.#currentFilterType = currentFilterType;
+    this.#onFilterTypeChange = onFilterTypeChange;
+
+    this.element.addEventListener('change', this.#filterTypeChangeHandler);
   }
 
   get template() {
-    return createFiltersTemplate(this.#filter);
+    return this.#createFilterTemplate();
   }
+
+  #createFilterTemplate() {
+    return `
+      <form class="trip-filters" action="#" method="get">
+        ${FILTERS.map((filter) => `
+          <div class="trip-filters__filter">
+            <input id="filter-${filter.type}" class="trip-filters__filter-input visually-hidden" type="radio" name="trip-filter" value="${filter.type}" ${this.#currentFilterType === filter.type ? 'checked' : ''}>
+            <label class="trip-filters__filter-label" for="filter-${filter.type}">${filter.name}</label>
+          </div>
+        `).join('')}
+      </form>
+    `;
+  }
+
+  #filterTypeChangeHandler = (evt) => {
+    if (evt.target.tagName === 'INPUT') {
+      this.#onFilterTypeChange(evt.target.value);
+    }
+  };
 }

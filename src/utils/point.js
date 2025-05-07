@@ -48,3 +48,13 @@ export const getDuration = (dateFrom, dateTo) => {
     return dayjs.duration(timeDifference).format('mm[M]');
   }
 };
+
+export const sortByDate = (pointA, pointB) => dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+
+export const sortByPrice = (pointA, pointB) => pointB.basePrice - pointA.basePrice;
+
+export const sortByTime = (pointA, pointB) => {
+  const durationA = dayjs(pointA.dateTo).diff(dayjs(pointA.dateFrom));
+  const durationB = dayjs(pointB.dateTo).diff(dayjs(pointB.dateFrom));
+  return durationB - durationA;
+};
