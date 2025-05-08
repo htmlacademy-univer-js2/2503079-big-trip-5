@@ -23,18 +23,32 @@ export default class NewPointPresenter {
       return;
     }
 
+    const destinations = this.#destinationsModel.destinations;
+    if (!destinations || destinations.length === 0) {
+      console.error('No destinations available');
+      return;
+    }
+
     const defaultPoint = getDefaultPoint();
+    defaultPoint.destination = destinations[0].id;
+
     const defaultDestination = this.#destinationsModel.getById(defaultPoint.destination);
-    const defaultOffers = this.#offersModel.getByType(defaultPoint.type);
+    if (!defaultDestination) {
+      console.error('Default destination not found');
+      return;
+    }
+
+    const defaultOffers = this.#offersModel.getByType(defaultPoint.type) || [];
 
     this.#newPointComponent = new EditPointView({
       point: defaultPoint,
       destination: defaultDestination,
       offers: defaultOffers,
-      allOffers: this.#offersModel.get(),
+      allOffers: this.#offersModel.offers,
       onSaveClick: this.#handleEditPointSave,
       onDeleteClick: this.#handleEditCancelPoint,
-      onRollUpClick: null
+      onRollUpClick: this.#handleEditCancelPoint,
+      destinationsModel: this.#destinationsModel
     });
 
     render(this.#newPointComponent, this.#container, RenderPosition.AFTERBEGIN);
@@ -45,14 +59,15 @@ export default class NewPointPresenter {
     if (this.#newPointComponent === null) {
       return;
     }
+
     remove(this.#newPointComponent);
     this.#newPointComponent = null;
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#addPointButton.disabled = false;
   }
 
-  #handleEditPointSave = (updatedPoint) => {
-    this.#handleDataChange('ADD_TASK', 'MAJOR', updatedPoint);
+  #handleEditPointSave = (point) => {
+    this.#handleDataChange('add', point);
     this.destroy();
   };
 

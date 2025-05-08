@@ -6,7 +6,7 @@ export const DateFormat = {
   TIME: 'HH:mm'
 };
 
-export const FilterType = {
+const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
@@ -95,84 +95,6 @@ const DATES = [
   }
 ];
 
-const CITIES = [
-  {
-    id: 'chamonix',
-    name: 'Chamonix',
-    description: 'Chamonix, a beautiful mountain town in the French Alps, is known for its stunning views and world-class skiing.',
-    pictures: [
-      {
-        src: 'https://loremflickr.com/248/152?random=1',
-        description: 'Chamonix parliament building'
-      },
-      {
-        src: 'https://loremflickr.com/248/152?random=2',
-        description: 'Chamonix mountain view'
-      }
-    ]
-  },
-  {
-    id: 'geneva',
-    name: 'Geneva',
-    description: 'Geneva, a global city and financial center, is known for its diplomacy and banking.',
-    pictures: [
-      {
-        src: 'https://loremflickr.com/248/152?random=3',
-        description: 'Geneva lake view'
-      },
-      {
-        src: 'https://loremflickr.com/248/152?random=4',
-        description: 'Geneva city center'
-      }
-    ]
-  },
-  {
-    id: 'amsterdam',
-    name: 'Amsterdam',
-    description: 'Amsterdam, the capital of the Netherlands, is known for its artistic heritage, elaborate canal system and narrow houses with gabled facades.',
-    pictures: [
-      {
-        src: 'https://loremflickr.com/248/152?random=5',
-        description: 'Amsterdam canal view'
-      },
-      {
-        src: 'https://loremflickr.com/248/152?random=6',
-        description: 'Amsterdam city center'
-      }
-    ]
-  },
-  {
-    id: 'moscow',
-    name: 'Moscow',
-    description: 'Moscow, the capital of Russia, is known for its iconic architecture and rich history.',
-    pictures: [
-      {
-        src: 'https://loremflickr.com/248/152?random=7',
-        description: 'Moscow Kremlin'
-      },
-      {
-        src: 'https://loremflickr.com/248/152?random=8',
-        description: 'Moscow Red Square'
-      }
-    ]
-  },
-  {
-    id: 'new-york',
-    name: 'New York',
-    description: 'New York City, the most populous city in the United States, is known for its iconic skyline and cultural diversity.',
-    pictures: [
-      {
-        src: 'https://loremflickr.com/248/152?random=9',
-        description: 'New York Times Square'
-      },
-      {
-        src: 'https://loremflickr.com/248/152?random=10',
-        description: 'New York Central Park'
-      }
-    ]
-  }
-];
-
 const DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt architecto labore atque!',
   'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptatem exercitationem culpa, molestias qui eveniet corrupti?',
@@ -192,5 +114,5 @@ const MODE = {
   EDIT: 'edit'
 };
 
-export { CITIES, DATES, DESCRIPTIONS, FilterMessages, FILTERS, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, TYPE_POINTS };
+export { DATES, DESCRIPTIONS, FilterMessages, FILTERS, FilterType, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, TYPE_POINTS };
 
