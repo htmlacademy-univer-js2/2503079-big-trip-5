@@ -28,9 +28,6 @@ export const isDatesEqual = (dateA, dateB) => (dateA === null && dateB === null)
 
 
 export function adaptToClient(point) {
-  console.log('adaptToClient input:', point);
-  console.log('base_price value:', point.base_price);
-
   const adaptedPoint = {
     ...point,
     price: point.base_price,
@@ -39,14 +36,11 @@ export function adaptToClient(point) {
     isFavorite: point.is_favorite
   };
 
-  console.log('adaptedPoint before deletion:', adaptedPoint);
-
   delete adaptedPoint.base_price;
   delete adaptedPoint.date_from;
   delete adaptedPoint.date_to;
   delete adaptedPoint.is_favorite;
 
-  console.log('adaptedPoint after deletion:', adaptedPoint);
   return adaptedPoint;
 }
 

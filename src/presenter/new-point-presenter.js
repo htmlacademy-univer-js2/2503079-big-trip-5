@@ -25,7 +25,6 @@ export default class NewPointPresenter {
 
     const destinations = this.#destinationsModel.destinations;
     if (!destinations || destinations.length === 0) {
-      console.error('No destinations available');
       return;
     }
 
@@ -34,7 +33,6 @@ export default class NewPointPresenter {
 
     const defaultDestination = this.#destinationsModel.getById(defaultPoint.destination);
     if (!defaultDestination) {
-      console.error('Default destination not found');
       return;
     }
 

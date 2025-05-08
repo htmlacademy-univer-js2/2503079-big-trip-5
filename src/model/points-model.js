@@ -20,16 +20,12 @@ export default class PointsModel extends Observable{
 
   async init() {
     try {
-      console.log('PointsModel: Starting initialization');
       const points = await this.#pointsApiService.points;
-      console.log('PointsModel: Raw points from API:', points);
       this.#points = points.map(adaptToClient);
-      console.log('PointsModel: Adapted points:', this.#points);
-      this._notify(UpdateType.INIT, {isError: false});
+      this._notify(UpdateType.INIT, { isError: false });
     } catch (err) {
-      console.error('PointsModel: Error during initialization:', err);
       this.#points = [];
-      this._notify(UpdateType.INIT, {isError: true});
+      this._notify(UpdateType.INIT, { isError: true });
     }
   }
 
@@ -37,7 +33,7 @@ export default class PointsModel extends Observable{
     const index = this.#points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
-      throw new Error('Can\'t update non-existing point');
+      throw new Error('Can\'t update unexisting point');
     }
 
     try {
@@ -46,7 +42,6 @@ export default class PointsModel extends Observable{
       this.#points = updatePoints(this.#points, updatedPoint);
       this._notify(updateType, updatedPoint);
     } catch (err) {
-      console.error('Failed to update point:', err);
       throw new Error('Can\'t update point');
     }
   }
