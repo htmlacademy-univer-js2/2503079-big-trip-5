@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import { CITIES, DATES } from '../const.js';
+import { DATES } from '../const.js';
 import { getRandomArrayElement, getRandomUUID, getRandomValue } from '../utils/common.js';
 
-export function getMockPoint(type, destinationId, offersIds){
+export function getMockPoint(type, destinationId, offersIds) {
   const date = getRandomArrayElement(DATES);
   const isFavorite = Math.floor(Math.random() * 10) % 2 === 0;
   const point = {
@@ -23,7 +23,7 @@ export function getDefaultPoint() {
     id: getRandomUUID(),
     basePrice: 0,
     type: 'flight',
-    destination: CITIES[0].id,
+    destination: null,
     dateFrom: dayjs().format('YYYY-MM-DDTHH:mm'),
     dateTo: dayjs().add(1, 'hour').format('YYYY-MM-DDTHH:mm'),
     offers: [],

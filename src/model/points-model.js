@@ -1,36 +1,49 @@
-import Observable from '../framework/observable.js';
+import { UpdateType } from '../const';
+import Observable from '../framework/observable';
+import { adaptToClient, updatePoints } from '../utils/common';
 
-export default class PointsModel extends Observable {
-  #service = null;
+export default class PointsModel extends Observable{
+  #pointsApiService = null;
   #points = [];
-
-  constructor(service) {
+  #destinationsModel = null;
+  #offersModel = null;
+  constructor({pointsApiService, destinationsModel, offersModel}) {
     super();
-    this.#service = service;
-    this.#points = this.#service.points;
+    this.#pointsApiService = pointsApiService;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
   }
 
-  get = () => this.#points;
-
-  setPoints(updateType, points) {
-    this.#points = points;
-    this._notify(updateType);
+  get points() {
+    return this.#points;
   }
 
-  updatePoint(updateType, updatedPoint) {
-    const index = this.#points.findIndex((point) => point.id === updatedPoint.id);
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(adaptToClient);
+      this._notify(UpdateType.INIT, { isError: false });
+    } catch (err) {
+      this.#points = [];
+      this._notify(UpdateType.INIT, { isError: true });
+    }
+  }
+
+  async updatePoint(updateType, update) {
+    const index = this.#points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
-      throw new Error('Can\'t update non-existing point');
+      throw new Error('Can\'t update unexisting point');
     }
 
-    this.#points = [
-      ...this.#points.slice(0, index),
-      updatedPoint,
-      ...this.#points.slice(index + 1)
-    ];
-
-    this._notify(updateType, updatedPoint);
+    try {
+      const response = await this.#pointsApiService.updatePoint(update);
+      const updatedPoint = adaptToClient(response);
+      this.#points = updatePoints(this.#points, updatedPoint);
+      this._notify(updateType, updatedPoint);
+    } catch (err) {
+      throw new Error('Can\'t update point');
+    }
   }
 
   addPoint(updateType, updatedPoint) {

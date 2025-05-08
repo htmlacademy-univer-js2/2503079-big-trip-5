@@ -13,18 +13,17 @@ const createFavoriteButtonTemplate = (isFavorite) => `
   </button>`;
 
 const createOfferTemplate = (offers) => {
-  let result = '';
+  if (!offers || offers.length === 0) {
+    return '';
+  }
 
-  offers.forEach((offer) => {
-    result += `
+  return offers.map((offer) => `
     <li class="event__offer">
       <span class="event__offer-title">${offer.title}</span>
       &plus;&euro;&nbsp;
       <span class="event__offer-price">${offer.price}</span>
-    </li>`;
-  });
-
-  return result;
+    </li>
+  `).join('');
 };
 
 const createPointTemplate = (point, destination, offers) => `
@@ -44,7 +43,7 @@ const createPointTemplate = (point, destination, offers) => `
       <p class="event__duration">${getDuration(point.dateFrom, point.dateTo)}</p>
     </div>
     <p class="event__price">
-      &euro;&nbsp;<span class="event__price-value">${point.basePrice}</span>
+      &euro;&nbsp;<span class="event__price-value">${point.price}</span>
     </p>
     <h4 class="visually-hidden">Offers:</h4>
     <ul class="event__selected-offers">

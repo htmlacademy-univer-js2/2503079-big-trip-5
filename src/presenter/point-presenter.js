@@ -25,6 +25,9 @@ export default class PointPresenter {
   #prevPointComponent = null;
   #prevPointEditComponent = null;
 
+  #pointDestination = null;
+  #pointOffers = null;
+
   constructor(destinationsModel, offersModel, eventListComponent, pointChangeHandler, modeChangeHandler) {
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
@@ -76,30 +79,35 @@ export default class PointPresenter {
     });
   };
 
-  #renderPoint = (point, destination, offers) => {
+  #renderPoint = () => {
     this.#prevPointComponent = this.#pointComponent;
     this.#prevPointEditComponent = this.#pointEditComponent;
 
-    if (!destination) {
-      destination = this.#destinationsModel.getById(point.destination);
+    if (!this.#pointDestination) {
+      this.#pointDestination = this.#destinationsModel.getById(this.#point.destination);
+    }
+
+    if (!this.#pointDestination) {
+      return;
     }
 
     this.#pointComponent = new PointView(
-      point,
-      destination,
-      offers,
+      this.#point,
+      this.#pointDestination,
+      this.#pointOffers,
       this.#onRollupButtonClick,
       this.#onFavoriteButtonClick
     );
 
     this.#pointEditComponent = new EditPointView({
-      point,
-      destination,
-      offers,
+      point: this.#point,
+      destination: this.#pointDestination,
+      offers: this.#pointOffers,
       allOffers: this.#offersModel.get(),
       onSaveClick: this.#onSaveButtonSubmit,
       onRollUpClick: this.#onResetButtonClick,
-      onDeleteClick: this.#onDeleteButtonClick
+      onDeleteClick: this.#onDeleteButtonClick,
+      destinationsModel: this.#destinationsModel
     });
 
     if (!(this.#prevPointComponent && this.#prevPointEditComponent)) {
@@ -118,15 +126,11 @@ export default class PointPresenter {
 
   init(point) {
     this.#point = point;
-    const destination = this.#destinationsModel.getById(point.destination);
-    const offers = this.#offersModel.getByType(point.type);
+    this.#pointDestination = this.#destinationsModel.getById(point.destination);
+    const typeOffers = this.#offersModel.getByType(point.type);
+    this.#pointOffers = typeOffers ? typeOffers.offers.filter((offer) => point.offers.includes(offer.id)) : [];
 
-    if (!destination) {
-      console.error(`Destination not found for point ${point.id}`);
-      return;
-    }
-
-    this.#renderPoint(point, destination, offers);
+    this.#renderPoint();
   }
 
   resetView = () => {
