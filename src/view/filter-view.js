@@ -4,11 +4,13 @@ import AbstractView from '../framework/view/abstract-view.js';
 export default class FilterView extends AbstractView {
   #currentFilterType = null;
   #onFilterTypeChange = null;
+  #disabledFilters = null;
 
-  constructor({ currentFilterType, onFilterTypeChange }) {
+  constructor({ currentFilterType, onFilterTypeChange, disabledFilters }) {
     super();
     this.#currentFilterType = currentFilterType;
     this.#onFilterTypeChange = onFilterTypeChange;
+    this.#disabledFilters = disabledFilters;
 
     this.element.addEventListener('change', this.#filterTypeChangeHandler);
   }
@@ -22,8 +24,15 @@ export default class FilterView extends AbstractView {
       <form class="trip-filters" action="#" method="get">
         ${FILTERS.map((filter) => `
           <div class="trip-filters__filter">
-            <input id="filter-${filter.type}" class="trip-filters__filter-input visually-hidden" type="radio" name="trip-filter" value="${filter.type}" ${this.#currentFilterType === filter.type ? 'checked' : ''}>
-            <label class="trip-filters__filter-label" for="filter-${filter.type}">${filter.name}</label>
+            <input id="filter-${filter.type}"
+              class="trip-filters__filter-input visually-hidden"
+              type="radio"
+              name="trip-filter"
+              value="${filter.type}"
+              ${this.#currentFilterType === filter.type ? 'checked' : ''}
+              ${this.#disabledFilters.includes(filter.type) ? 'disabled' : ''}>
+            <label class="trip-filters__filter-label ${this.#disabledFilters.includes(filter.type) ? 'trip-filters__filter-label--disabled' : ''}"
+              for="filter-${filter.type}">${filter.name}</label>
           </div>
         `).join('')}
       </form>
@@ -31,7 +40,7 @@ export default class FilterView extends AbstractView {
   }
 
   #filterTypeChangeHandler = (evt) => {
-    if (evt.target.tagName === 'INPUT') {
+    if (evt.target.tagName === 'INPUT' && !evt.target.disabled) {
       this.#onFilterTypeChange(evt.target.value);
     }
   };

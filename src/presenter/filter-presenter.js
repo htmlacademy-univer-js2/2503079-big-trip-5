@@ -1,5 +1,6 @@
 import { UpdateType } from '../const.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
+import { filter } from '../utils/filter.js';
 import FilterView from '../view/filter-view.js';
 
 export default class FilterPresenter {
@@ -31,6 +32,22 @@ export default class FilterPresenter {
     this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
   };
 
+  #getDisabledFilters() {
+    const points = this.#pointsModel.points;
+    if (!points || points.length === 0) {
+      return ['future', 'present', 'past'];
+    }
+
+    const disabledFilters = [];
+    Object.entries(filter).forEach(([filterType, filterFunction]) => {
+      if (filterType !== 'everything' && filterFunction(points).length === 0) {
+        disabledFilters.push(filterType);
+      }
+    });
+
+    return disabledFilters;
+  }
+
   #renderFilter() {
     if (this.#filterComponent) {
       remove(this.#filterComponent);
@@ -38,7 +55,8 @@ export default class FilterPresenter {
 
     this.#filterComponent = new FilterView({
       currentFilterType: this.#filterModel.filterType,
-      onFilterTypeChange: this.#handleFilterTypeChange
+      onFilterTypeChange: this.#handleFilterTypeChange,
+      disabledFilters: this.#getDisabledFilters()
     });
 
     render(this.#filterComponent, this.#filterContainer, RenderPosition.AFTERBEGIN);

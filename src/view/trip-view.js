@@ -47,15 +47,31 @@ function createTripInfoTemplate(points, destinations, totalPrice) {
 export default class TripInfoView extends AbstractView {
   #points = null;
   #destinations = null;
+  #offers = null;
 
-  constructor(points, destinations) {
+  constructor(points, destinations, offers) {
     super();
     this.#points = points;
     this.#destinations = destinations;
+    this.#offers = offers;
   }
 
   get template() {
-    const totalPrice = this.#points.reduce((sum, point) => sum + point.price, 0);
+    const totalPrice = this.#points.reduce((sum, point) => {
+      // Get base price of the point
+      const pointBasePrice = point.basePrice || point.price;
+
+      // Get offers for this point type
+      const typeOffers = this.#offers.find((offer) => offer.type.toLowerCase() === point.type.toLowerCase());
+
+      // Calculate sum of selected offers prices
+      const offersPrice = typeOffers ? typeOffers.offers
+        .filter((offer) => point.offers.includes(offer.id))
+        .reduce((offerSum, offer) => offerSum + offer.price, 0) : 0;
+
+      return sum + pointBasePrice + offersPrice;
+    }, 0);
+
     return createTripInfoTemplate(this.#points, this.#destinations, totalPrice);
   }
 }

@@ -34,3 +34,9 @@
 .event--edit:disabled::after {
   opacity: 1;
 }
+
+.trip-filters__filter-label--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
