@@ -21,12 +21,11 @@ export const UpdateType = {
 };
 
 const MS_IN_DAY = 86400000;
-
 const MS_IN_HOUR = 3600000;
 
-const TYPE_POINTS = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
+export const TYPE_POINTS = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
 
-const FILTERS = [
+export const FILTERS = [
   {
     type: 'everything',
     name: 'Everything'
@@ -53,7 +52,7 @@ export const Sorts = {
   OFFERS: 'offers'
 };
 
-const FilterMessages = {
+export const FilterMessages = {
   everything: 'Click New Event to create your first point',
   future: 'There are no future events now',
   present: 'There are no present events now',
@@ -114,5 +113,21 @@ const MODE = {
   EDIT: 'edit'
 };
 
-export { DATES, DESCRIPTIONS, FilterMessages, FILTERS, FilterType, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, TYPE_POINTS };
+export const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT'
+};
+
+export {
+    DATES,
+    DESCRIPTIONS,
+    FilterType,
+    IMAGES,
+    MODE,
+    MS_IN_DAY,
+    MS_IN_HOUR,
+    OFFERS,
+    PRICES
+};
 

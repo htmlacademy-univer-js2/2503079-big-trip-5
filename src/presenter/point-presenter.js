@@ -1,6 +1,7 @@
 import EditPointView from '../view/edit-point-view.js';
 import PointView from '../view/point-view.js';
 
+import { UpdateType, UserAction } from '../const.js';
 import { remove, render, replace } from '../framework/render.js';
 
 const POINT_MODE = {
@@ -48,15 +49,20 @@ export default class PointPresenter {
     replace(this.#pointEditComponent, this.#pointComponent);
   };
 
-  #onSaveButtonSubmit = (update) => {
-    const updatedPoint = {
-      ...this.#point,
-      ...update,
-      type: update.type || this.#point.type,
-      destination: update.destination || this.#point.destination,
-      offers: update.offers || this.#point.offers
-    };
-    this.#pointChangeHandler('UPDATE_TASK', 'MINOR', updatedPoint);
+  #onSaveButtonSubmit = async (update) => {
+    try {
+      const updatedPoint = {
+        ...this.#point,
+        ...update,
+        type: update.type || this.#point.type,
+        destination: update.destination || this.#point.destination,
+        offers: update.offers || this.#point.offers
+      };
+      await this.#pointChangeHandler(UserAction.UPDATE_POINT, UpdateType.MINOR, updatedPoint);
+      this.#replaceFormToPoint();
+    } catch (err) {
+      this.#pointEditComponent.shake();
+    }
   };
 
   #onRollupButtonClick = () => {
@@ -67,16 +73,24 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #onDeleteButtonClick = (point) => {
-    this.#pointChangeHandler('DELETE_TASK', 'MINOR', point);
-    this.#replaceFormToPoint();
+  #onDeleteButtonClick = async (point) => {
+    try {
+      await this.#pointChangeHandler(UserAction.DELETE_POINT, UpdateType.MINOR, point);
+      this.#replaceFormToPoint();
+    } catch (err) {
+      this.#pointEditComponent.shake();
+    }
   };
 
-  #onFavoriteButtonClick = () => {
-    this.#pointChangeHandler('UPDATE_TASK', 'MINOR', {
-      ...this.#point,
-      isFavorite: !this.#point.isFavorite
-    });
+  #onFavoriteButtonClick = async () => {
+    try {
+      await this.#pointChangeHandler(UserAction.UPDATE_POINT, UpdateType.MINOR, {
+        ...this.#point,
+        isFavorite: !this.#point.isFavorite
+      });
+    } catch (err) {
+      this.#pointEditComponent.shake();
+    }
   };
 
   #renderPoint = () => {

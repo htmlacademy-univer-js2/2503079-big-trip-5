@@ -58,17 +58,28 @@ function formatDateForServer(date) {
   return null;
 }
 
-export function adaptToServer(point) {
+export function adaptToServer(point, isNew = false) {
   const adaptedPoint = {
-    id: point.id,
     type: point.type,
     destination: point.destination,
-    ['base_price']: Number(point.price),
+    ['base_price']: Number(point.basePrice || point.price),
     ['date_from']: formatDateForServer(point.dateFrom),
     ['date_to']: formatDateForServer(point.dateTo),
     ['is_favorite']: Boolean(point.isFavorite),
-    offers: point.offers // Отправляем массив ID offers как есть
+    offers: Array.isArray(point.offers) ? point.offers : []
   };
+
+  // Only include id for existing points
+  if (!isNew && point.id) {
+    adaptedPoint.id = point.id;
+  }
+
+  // Remove any undefined or null values
+  Object.keys(adaptedPoint).forEach((key) => {
+    if (adaptedPoint[key] === undefined || adaptedPoint[key] === null) {
+      delete adaptedPoint[key];
+    }
+  });
 
   return adaptedPoint;
 }

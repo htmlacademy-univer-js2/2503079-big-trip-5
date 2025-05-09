@@ -1,3 +1,4 @@
+import { UpdateType, UserAction } from '../const.js';
 import { RenderPosition, remove, render } from '../framework/render.js';
 import { getDefaultPoint } from '../mock/point.js';
 import EditPointView from '../view/edit-point-view.js';
@@ -64,9 +65,13 @@ export default class NewPointPresenter {
     this.#addPointButton.disabled = false;
   }
 
-  #handleEditPointSave = (point) => {
-    this.#handleDataChange('add', point);
-    this.destroy();
+  #handleEditPointSave = async (point) => {
+    try {
+      await this.#handleDataChange(UserAction.ADD_POINT, UpdateType.MAJOR, point);
+      this.destroy();
+    } catch (err) {
+      this.#newPointComponent.shake();
+    }
   };
 
   #handleEditCancelPoint = () => {
