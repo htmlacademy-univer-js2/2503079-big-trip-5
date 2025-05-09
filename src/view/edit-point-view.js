@@ -57,9 +57,10 @@ function createOffersTemplate (offers, selectedOffers) {
   }).join('');
 }
 
-function createPointEditTemplate (point, destination, offers) {
+function createPointEditTemplate (point, destination, offers, isSaving, isDeleting) {
   const dateFrom = dayjs(point.dateFrom).format(DateFormat.LONG);
   const dateTo = dayjs(point.dateTo).format(DateFormat.LONG);
+  const isDisabled = isSaving || isDeleting;
 
   return (`<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
@@ -69,7 +70,7 @@ function createPointEditTemplate (point, destination, offers) {
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${point.type}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -83,7 +84,7 @@ function createPointEditTemplate (point, destination, offers) {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${point.type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1" required>
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1" required ${isDisabled ? 'disabled' : ''}>
         <datalist id="destination-list-1">
           ${createDestinationList(destination)}
         </datalist>
@@ -91,10 +92,10 @@ function createPointEditTemplate (point, destination, offers) {
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}" ${isDisabled ? 'disabled' : ''}>
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}" ${isDisabled ? 'disabled' : ''}>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -102,12 +103,12 @@ function createPointEditTemplate (point, destination, offers) {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${point.price}" min="0" required>
+        <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${point.price}" min="0" max="100000" required ${isDisabled ? 'disabled' : ''}>
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
-      <button class="event__rollup-btn" type="button">
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+      <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
+      <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
         <span class="visually-hidden">Close event</span>
       </button>
     </header>
@@ -145,6 +146,8 @@ export default class EditPointView extends AbstractStatefulView {
   #handleRollUpClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #isSaving = false;
+  #isDeleting = false;
 
   constructor({ point, destination, offers, allOffers, onSaveClick, onDeleteClick, onRollUpClick, destinationsModel }) {
     super();
@@ -156,7 +159,11 @@ export default class EditPointView extends AbstractStatefulView {
     this.#handleDeleteClick = onDeleteClick;
     this.#handleRollUpClick = onRollUpClick;
 
-    this._setState(EditPointView.parsePointToState(point, destination, offers));
+    this._setState({
+      ...EditPointView.parsePointToState(point, destination, offers),
+      isSaving: false,
+      isDeleting: false
+    });
 
     this._restoreHandlers();
     this.#setDatepicker();
@@ -165,7 +172,7 @@ export default class EditPointView extends AbstractStatefulView {
   get template() {
     const typeOffers = this.#allOffers.find((offer) => offer.type.toLowerCase() === this._state.point.type.toLowerCase());
     const availableOffers = typeOffers ? typeOffers.offers : [];
-    return createPointEditTemplate(this._state.point, this._state.destination, availableOffers);
+    return createPointEditTemplate(this._state.point, this._state.destination, availableOffers, this.#isSaving, this.#isDeleting);
   }
 
   _restoreHandlers() {
@@ -193,7 +200,7 @@ export default class EditPointView extends AbstractStatefulView {
     this.#handleRollUpClick();
   };
 
-  #editPointSaveHandler = (evt) => {
+  #editPointSaveHandler = async (evt) => {
     evt.preventDefault();
     const destinationInput = this.element.querySelector('.event__input--destination');
     const priceInput = this.element.querySelector('.event__input--price');
@@ -205,28 +212,59 @@ export default class EditPointView extends AbstractStatefulView {
       return;
     }
 
-    if (!priceInput.value || priceInput.value < 0) {
+    const price = Number(priceInput.value);
+    if (!price || price < 0) {
       priceInput.setCustomValidity('Please enter a valid positive number');
       priceInput.reportValidity();
       return;
     }
 
-    const point = EditPointView.parseStateToPoint(this._state);
-    point.destination = selectedCity.id;
+    if (price > 100000) {
+      priceInput.setCustomValidity('Price must not exceed 100,000');
+      priceInput.reportValidity();
+      return;
+    }
 
-    // Сохраняем выбранные offers
-    point.offers = this._state.point.offers;
+    try {
+      this.#isSaving = true;
+      this.updateElement({ ...this._state, isSaving: true });
 
-    // Форматируем даты в ISO строку для API
-    point.dateFrom = new Date(point.dateFrom).toISOString();
-    point.dateTo = new Date(point.dateTo).toISOString();
+      const point = EditPointView.parseStateToPoint(this._state);
+      point.destination = selectedCity.id;
+      point.offers = this._state.point.offers;
+      point.price = price;
+      point.basePrice = price;
+      point.dateFrom = new Date(point.dateFrom).toISOString();
+      point.dateTo = new Date(point.dateTo).toISOString();
 
-    this.#handleSaveClick(point);
+      // Validate dates
+      if (new Date(point.dateFrom) > new Date(point.dateTo)) {
+        throw new Error('End date must be after start date');
+      }
+
+      await this.#handleSaveClick(point);
+    } catch (err) {
+      this.shake();
+      throw err; // Пробрасываем ошибку дальше для обработки в презентере
+    } finally {
+      this.#isSaving = false;
+      this.updateElement({ ...this._state, isSaving: false });
+    }
   };
 
-  #editPointDeleteHandler = (evt) => {
+  #editPointDeleteHandler = async (evt) => {
     evt.preventDefault();
-    this.#handleDeleteClick(EditPointView.parseStateToPoint(this._state));
+    try {
+      this.#isDeleting = true;
+      this.updateElement({ ...this._state, isDeleting: true });
+      await this.#handleDeleteClick(EditPointView.parseStateToPoint(this._state));
+    } catch (err) {
+      this.shake();
+      throw err; // Пробрасываем ошибку дальше для обработки в презентере
+    } finally {
+      this.#isDeleting = false;
+      this.updateElement({ ...this._state, isDeleting: false });
+    }
   };
 
   #priceChangeHandler = (evt) => {
@@ -367,13 +405,15 @@ export default class EditPointView extends AbstractStatefulView {
   }
 
   updateElement(update) {
-    const prevState = this._state;
     this._setState(update);
+    const prevElement = this.element;
+    const parent = prevElement.parentElement;
+    this.removeElement();
 
-    if (prevState.point.dateFrom !== this._state.point.dateFrom ||
-        prevState.point.dateTo !== this._state.point.dateTo) {
-      this.#setDatepicker();
-    }
+    const newElement = this.element;
+    parent.replaceChild(newElement, prevElement);
+    this._restoreHandlers();
+    this.#setDatepicker();
   }
 
   #setDatepicker() {
@@ -445,4 +485,11 @@ export default class EditPointView extends AbstractStatefulView {
   reset = (point) => {
     this.updateElement(EditPointView.parsePointToState(point, this.#destinations.find((dest) => dest.id === point.destination), this.#offers));
   };
+
+  shake() {
+    this.element.classList.add('shake');
+    setTimeout(() => {
+      this.element.classList.remove('shake');
+    }, 600);
+  }
 }
