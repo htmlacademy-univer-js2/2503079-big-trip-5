@@ -58,13 +58,10 @@ export default class TripInfoView extends AbstractView {
 
   get template() {
     const totalPrice = this.#points.reduce((sum, point) => {
-      // Get base price of the point
       const pointBasePrice = point.basePrice || point.price;
 
-      // Get offers for this point type
       const typeOffers = this.#offers.find((offer) => offer.type.toLowerCase() === point.type.toLowerCase());
 
-      // Calculate sum of selected offers prices
       const offersPrice = typeOffers ? typeOffers.offers
         .filter((offer) => point.offers.includes(offer.id))
         .reduce((offerSum, offer) => offerSum + offer.price, 0) : 0;
