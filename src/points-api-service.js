@@ -29,25 +29,16 @@ export default class PointsApiService extends ApiService {
   }
 
   async createPoint(point) {
-    console.log('PointsApiService: Creating point:', point);
     const adaptedPoint = adaptToServer(point, true);
-    console.log('PointsApiService: Adapted point for server:', adaptedPoint);
+    const response = await this._load({
+      url: 'points',
+      method: 'POST',
+      body: JSON.stringify(adaptedPoint),
+      headers: new Headers({'Content-Type': 'application/json'})
+    });
 
-    try {
-      const response = await this._load({
-        url: 'points',
-        method: 'POST',
-        body: JSON.stringify(adaptedPoint),
-        headers: new Headers({'Content-Type': 'application/json'})
-      });
-
-      const parsedResponse = await ApiService.parseResponse(response);
-      console.log('PointsApiService: Server response:', parsedResponse);
-      return parsedResponse;
-    } catch (err) {
-      console.error('PointsApiService: Error creating point:', err);
-      throw err;
-    }
+    const parsedResponse = await ApiService.parseResponse(response);
+    return parsedResponse;
   }
 
   async deletePoint(pointId) {

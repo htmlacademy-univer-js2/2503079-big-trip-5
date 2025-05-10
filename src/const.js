@@ -120,14 +120,13 @@ export const UserAction = {
 };
 
 export {
-    DATES,
-    DESCRIPTIONS,
-    FilterType,
-    IMAGES,
-    MODE,
-    MS_IN_DAY,
-    MS_IN_HOUR,
-    OFFERS,
-    PRICES
+  DATES,
+  DESCRIPTIONS,
+  FilterType,
+  IMAGES,
+  MODE,
+  MS_IN_DAY,
+  MS_IN_HOUR,
+  OFFERS,
+  PRICES
 };
-
