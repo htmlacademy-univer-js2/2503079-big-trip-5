@@ -115,4 +115,3 @@ const MODE = {
 };
 
 export { DATES, DESCRIPTIONS, FilterMessages, FILTERS, FilterType, IMAGES, MODE, MS_IN_DAY, MS_IN_HOUR, OFFERS, PRICES, TYPE_POINTS };
-
