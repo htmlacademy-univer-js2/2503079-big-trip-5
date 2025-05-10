@@ -1,23 +1,17 @@
-import { Sorts, UpdateType } from '../const.js';
+import { Sorts, UpdateType, UserAction } from '../const.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { filter } from '../utils/filter.js';
 import { sortByDate, sortByPrice, sortByTime } from '../utils/point.js';
-import EmptyListView from '../view/empty-list-view.js';
-import PointListView from '../view/points-list-view.js';
+import TripEmptyView from '../view/empty-list-view.js';
+import TripListView from '../view/points-list-view.js';
 import TripInfoView from '../view/trip-view.js';
 import FilterPresenter from './filter-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import PointPresenter from './point-presenter.js';
 import SortPresenter from './sort-presenter.js';
 
-const UserAction = {
-  UPDATE_TASK: 'UPDATE_TASK',
-  ADD_TASK: 'ADD_TASK',
-  DELETE_TASK: 'DELETE_TASK',
-};
-
 export default class Presenter {
-  #listComponent = new PointListView();
+  #listComponent = new TripListView();
   #emptyListComponent = null;
   #tripInfoComponent = null;
   #sortPresenter = null;
@@ -96,7 +90,7 @@ export default class Presenter {
     if (this.#emptyListComponent) {
       remove(this.#emptyListComponent);
     }
-    this.#emptyListComponent = new EmptyListView({
+    this.#emptyListComponent = new TripEmptyView({
       currentFilterType: this.#filterModel.filterType,
       isLoading,
       isLoadingError
@@ -116,13 +110,13 @@ export default class Presenter {
     render(this.#tripInfoComponent, this.#containers.tripInfoContainer, RenderPosition.AFTERBEGIN);
   }
 
-  #renderSort() {
+  #renderSort = () => {
     if (this.#sortPresenter) {
       this.#sortPresenter.destroy();
     }
-    this.#sortPresenter = new SortPresenter(this.#handleSortTypeChange, this.#containers.eventContainer);
-    this.#sortPresenter.init(this.#currentSortType);
-  }
+    this.#sortPresenter = new SortPresenter(this.#handleSortTypeChange, this.#listComponent.element);
+    this.#sortPresenter.init();
+  };
 
   #renderPoint(point) {
     const presenter = new PointPresenter(
@@ -210,16 +204,16 @@ export default class Presenter {
     this.#renderTrip();
   };
 
-  #handleViewAction = (actionType, updateType, payload) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
-      case UserAction.UPDATE_TASK:
-        this.#pointsModel.updatePoint(updateType, payload);
+      case UserAction.UPDATE_POINT:
+        await this.#pointsModel.updatePoint(updateType, update);
         break;
-      case UserAction.ADD_TASK:
-        this.#pointsModel.addPoint(updateType, payload);
+      case UserAction.ADD_POINT:
+        await this.#pointsModel.addPoint(updateType, update);
         break;
-      case UserAction.DELETE_TASK:
-        this.#pointsModel.deletePoint(updateType, payload);
+      case UserAction.DELETE_POINT:
+        await this.#pointsModel.deletePoint(updateType, update);
         break;
     }
   };
@@ -228,17 +222,21 @@ export default class Presenter {
     switch (updateType) {
       case UpdateType.INIT:
         this.#isLoading = false;
-        this.#isLoadingError = data.isError;
+        this.#renderTrip();
+        break;
+      case UpdateType.ERROR:
+        this.#isLoading = false;
         this.#renderTrip();
         break;
       case UpdateType.PATCH:
-        this.#pointPresenters.get(data.id).init(data);
+        this.#pointPresenters.get(data.id)?.init(data);
         break;
       case UpdateType.MINOR:
+        this.#clearTrip();
         this.#renderTrip();
         break;
       case UpdateType.MAJOR:
-        this.#clearTrip({ resetSort: true });
+        this.#clearTrip();
         this.#renderTrip();
         break;
     }

@@ -34,7 +34,7 @@ export default class ApiService {
     );
 
     try {
-      ApiService.checkStatus(response);
+      await ApiService.checkStatus(response);
       return response;
     } catch (err) {
       ApiService.catchError(err);
@@ -54,9 +54,10 @@ export default class ApiService {
    * Метод для проверки ответа
    * @param {Response} response Объект ответа
    */
-  static checkStatus(response) {
+  static async checkStatus(response) {
     if (!response.ok) {
-      throw new Error(`${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`${response.status}: ${response.statusText} - ${errorText}`);
     }
   }
 
