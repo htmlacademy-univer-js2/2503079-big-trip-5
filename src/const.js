@@ -1,10 +1,10 @@
-export const DateFormat = {
+const DateFormat = {
   LONG: 'YYYY-MM-DDTHH:mm',
   SHORT: 'MMM DD',
   TIME: 'HH:mm'
 };
 
-export const UpdateType = {
+const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
@@ -14,16 +14,26 @@ export const UpdateType = {
 const MS_IN_DAY = 86400000;
 const MS_IN_HOUR = 3600000;
 
-export const TYPE_POINTS = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
+const TYPE_POINTS = [
+  'Taxi',
+  'Bus',
+  'Train',
+  'Ship',
+  'Drive',
+  'Flight',
+  'Check-in',
+  'Sightseeing',
+  'Restaurant'
+];
 
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
-  PAST: 'past',
+  PAST: 'past'
 };
 
-export const Sorts = {
+const Sorts = {
   DAY: 'day',
   EVENT: 'event',
   TIME: 'time',
@@ -31,7 +41,7 @@ export const Sorts = {
   OFFERS: 'offers'
 };
 
-export const FilterMessages = {
+const FilterMessages = {
   everything: 'Click New Event to create your first point',
   future: 'There are no future events now',
   present: 'There are no present events now',
@@ -52,9 +62,14 @@ const VALIDATION_ERRORS = {
 };
 
 export {
-  FilterType,
-  UserAction,
-  VALIDATION_ERRORS,
+  DateFormat,
+  UpdateType,
   MS_IN_DAY,
   MS_IN_HOUR,
+  TYPE_POINTS,
+  FilterType,
+  Sorts,
+  FilterMessages,
+  UserAction,
+  VALIDATION_ERRORS,
 };

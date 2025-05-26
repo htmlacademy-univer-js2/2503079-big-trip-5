@@ -148,11 +148,9 @@ export default class Presenter {
   }
 
   #clearTrip({resetSort = false} = {}) {
-    // 1) Удаляем все точки
     this.#pointPresenters.forEach((p) => p.removeComponent());
     this.#pointPresenters.clear();
 
-    // 2) Удаляем заглушки/трип-инфо/новую точку
     if (this.#emptyListComponent) {
       remove(this.#emptyListComponent);
       this.#emptyListComponent = null;
@@ -166,11 +164,8 @@ export default class Presenter {
       this.#newPointPresenter = null;
     }
 
-    // 3) И очень важно — удаляем сам список, чтобы при новом рендере
-    //    он заново создавался «с чистого листа»
     remove(this.#listComponent);
 
-    // 4) Сброс сортировки при необходимости
     if (resetSort) {
       this.#currentSortType = Sorts.DAY;
     }
@@ -204,7 +199,6 @@ export default class Presenter {
       return;
     }
     this.#currentSortType = sortType;
-    // Полностью пересоздаём весь UI
     this.#clearTrip();
     this.#renderTrip();
   };
@@ -251,17 +245,13 @@ export default class Presenter {
   #handleCreateNewPoint = (evt) => {
     evt.preventDefault();
 
-    // 1) reset the global filter to “Everything”
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
-    // 2) reset our sort to the default (by day)
     this.#currentSortType = Sorts.DAY;
 
-    // 3) tear down + rebuild the trip UI with clean state
     this.#clearTrip({ resetSort: true });
     this.#renderTrip();
 
-    // 4) now open the new-point form
     this.#renderNewPoint();
   };
 }
