@@ -1,33 +1,20 @@
-import dayjs from 'dayjs';
-
-export function getRandomArrayElement(array) {
+function getRandomArrayElement(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-export function getRandomUUID(){
-  return crypto.randomUUID();
-}
-
-export function getRandomValue(lower, upper) {
+function getRandomValue(lower, upper) {
   return Math.round((upper - lower) * Math.random() + lower);
 }
 
-export const getRandomPositiveNumber = (max) => Math.ceil(Math.random() * max);
+const removeHandlerOnEscape = (cb) => document.removeEventListener('keydown', cb);
 
-export const updateItem = (items, update) => items.map((item) => item.id === update.id ? update : item);
-
-export const removeHandlerOnEscape = (cb) => document.removeEventListener('keydown', cb);
-
-export const onEscapeKeyDown = (evt) => {
+const onEscapeKeyDown = (evt) => {
   if (evt.key === 'Escape') {
     removeHandlerOnEscape(onEscapeKeyDown);
   }
 };
 
-export const isDatesEqual = (dateA, dateB) => (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
-
-
-export function adaptToClient(point) {
+function adaptToClient(point) {
   const adaptedPoint = {
     ...point,
     price: point.base_price,
@@ -44,7 +31,7 @@ export function adaptToClient(point) {
   return adaptedPoint;
 }
 
-export function updatePoints(points, update) {
+function updatePoints(points, update) {
   return points.map((point) => point.id === update.id ? update : point);
 }
 
@@ -58,7 +45,7 @@ function formatDateForServer(date) {
   return null;
 }
 
-export function adaptToServer(point, isNew = false) {
+function adaptToServer(point, isNew = false) {
   const adaptedPoint = {
     type: point.type,
     destination: point.destination,
@@ -69,12 +56,10 @@ export function adaptToServer(point, isNew = false) {
     offers: Array.isArray(point.offers) ? point.offers : []
   };
 
-  // Only include id for existing points
   if (!isNew && point.id) {
     adaptedPoint.id = point.id;
   }
 
-  // Remove any undefined or null values
   Object.keys(adaptedPoint).forEach((key) => {
     if (adaptedPoint[key] === undefined || adaptedPoint[key] === null) {
       delete adaptedPoint[key];
@@ -83,3 +68,13 @@ export function adaptToServer(point, isNew = false) {
 
   return adaptedPoint;
 }
+
+export {
+  getRandomArrayElement,
+  getRandomValue,
+  removeHandlerOnEscape,
+  onEscapeKeyDown,
+  adaptToClient,
+  updatePoints,
+  adaptToServer
+};

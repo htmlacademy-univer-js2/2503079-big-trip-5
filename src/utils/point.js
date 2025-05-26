@@ -1,43 +1,9 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { DateFormat, MS_IN_DAY, MS_IN_HOUR } from '../const.js';
+import { MS_IN_DAY, MS_IN_HOUR } from '../const.js';
 dayjs.extend(duration);
 
-export function getTime(date) {
-  return dayjs(date).format('HH:mm');
-}
-
-export function getMonthAndDay(date) {
-  return dayjs(date).format('MMM DD');
-}
-
-export function getFullDate(date) {
-  return dayjs(date).format('DD/MM/YY HH:mm');
-}
-
-export function getTimeInHours(startTime, endTime) {
-  const hours = dayjs(endTime).diff(dayjs(startTime), 'hours');
-  return hours === 0 ? '' : `${hours}H`;
-}
-
-export function getTimeInMinutes(startTime, endTime) {
-  const minutes = dayjs(endTime).diff(dayjs(startTime), 'minutes') % 60;
-  return minutes === 0 ? '' : `${minutes}M`;
-}
-
-export const isPastEvent = (date) => dayjs(date).isBefore(dayjs());
-
-export const isPresentEvent = (dateFrom, dateTo) => dayjs(dateFrom).isBefore(dayjs()) && dayjs(dateTo).isAfter(dayjs());
-
-export const isFutureEvent = (date) => dayjs(date).isAfter(dayjs());
-
-export const formatToLongDate = (dueDate) => dueDate ? dayjs(dueDate).format(DateFormat.LONG) : '';
-
-export const formatToShortDate = (time) => time ? dayjs(time).format(DateFormat.SHORT) : '';
-
-export const formatToShortTime = (time) => time ? dayjs(time).format(DateFormat.TIME) : '';
-
-export const getDuration = (dateFrom, dateTo) => {
+const getDuration = (dateFrom, dateTo) => {
   const timeDifference = dayjs(dateTo).diff(dayjs(dateFrom));
 
   if (timeDifference >= MS_IN_DAY) {
@@ -49,12 +15,35 @@ export const getDuration = (dateFrom, dateTo) => {
   }
 };
 
-export const sortByDate = (pointA, pointB) => dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+function sortPointDay(points) {
+  return points.sort((firstPoint, secondPoint) => new Date(firstPoint.dateFrom) - new Date(secondPoint.dateFrom));
+}
 
-export const sortByPrice = (pointA, pointB) => pointB.basePrice - pointA.basePrice;
+function sortPointTime(points) {
+  return points.sort((firstPoint, secondPoint) =>
+    dayjs(firstPoint.dateFrom).diff(dayjs(firstPoint.dateTo), 'minutes') -
+    dayjs(secondPoint.dateFrom).diff(dayjs(secondPoint.dateTo), 'minutes'));
+}
 
-export const sortByTime = (pointA, pointB) => {
-  const durationA = dayjs(pointA.dateTo).diff(dayjs(pointA.dateFrom));
-  const durationB = dayjs(pointB.dateTo).diff(dayjs(pointB.dateFrom));
-  return durationB - durationA;
-};
+function sortPointPrice(points) {
+  return points.sort((firstPoint, secondPoint) => secondPoint.price - firstPoint.price);
+}
+
+function getDefaultPoint() {
+  return {
+    basePrice: 0,
+    type: 'flight',
+    destination: {
+      id: null,
+      name: '',
+      description: '',
+      pictures: []
+    },
+    dateFrom: dayjs().format('YYYY-MM-DDTHH:mm'),
+    dateTo: dayjs().add(1, 'hour').format('YYYY-MM-DDTHH:mm'),
+    offers: [],
+    isFavorite: false
+  };
+}
+
+export {sortPointTime, sortPointPrice, sortPointDay, getDuration, getDefaultPoint};
