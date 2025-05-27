@@ -5,13 +5,11 @@ import {DateFormat, TYPE_POINTS, VALIDATION_ERRORS, POINT_MODE} from '../const.j
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 function createPicturesTemplate (pictures){
-  let result = '';
-
-  for (let i = 0; i < pictures.length; i++) {
-    result += `<img className="event__photo" src=${pictures[i].src} alt={pictures[i].description}>`;
-  }
-
-  return result;
+  return (pictures
+    .map(({src, description}) =>
+      `<img class="event__photo" src="${src}" alt="${description}">`
+    )
+    .join(''));
 }
 
 function createEventTypeTemplate (currentType) {
@@ -217,13 +215,8 @@ export default class EditPointView extends AbstractStatefulView {
     }
     this.element.querySelector('form').addEventListener('submit', this.#editPointSaveHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#editPointDeleteHandler);
-    this.element
-      .querySelector('.event__input--price')
-      .addEventListener('input', (evt) => {
-        evt.target.setCustomValidity('');
-      });
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationInputHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
   }
@@ -334,25 +327,6 @@ export default class EditPointView extends AbstractStatefulView {
     }
   };
 
-  #destinationInputHandler = (evt) => {
-    evt.preventDefault();
-    const input = evt.target;
-    const value = input.value.toLowerCase();
-
-    const datalist = this.element.querySelector('#destination-list-1');
-    datalist.innerHTML = '';
-
-    const matchingDestinations = this.#destinations.filter((dest) =>
-      dest.name.toLowerCase().includes(value)
-    );
-
-    matchingDestinations.forEach((dest) => {
-      const option = document.createElement('option');
-      option.value = dest.name;
-      datalist.appendChild(option);
-    });
-  };
-
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
     const newDestinationName = evt.target.value;
@@ -406,6 +380,11 @@ export default class EditPointView extends AbstractStatefulView {
       }
     });
   };
+
+  #priceInputHandler = (evt) => {
+    evt.target.setCustomValidity('');
+  };
+
 
   static parsePointToState(point, destination, offers) {
     return {
