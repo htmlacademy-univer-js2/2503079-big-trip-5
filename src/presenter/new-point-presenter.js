@@ -1,7 +1,7 @@
-import { UpdateType, UserAction } from '../const.js';
+import { UpdateType, UserAction, POINT_MODE } from '../const.js';
 import { RenderPosition, remove, render } from '../framework/render.js';
-import { getDefaultPoint } from '../mock/point.js';
 import EditPointView from '../view/edit-point-view.js';
+import {getDefaultPoint} from '../utils/point';
 
 export default class NewPointPresenter {
   #container = null;
@@ -10,6 +10,7 @@ export default class NewPointPresenter {
   #addPointButton = null;
   #destinationsModel = null;
   #offersModel = null;
+  #mode = null;
 
   constructor({ container, onDataChange, addPointButton, destinationsModel, offersModel }) {
     this.#container = container;
@@ -17,6 +18,7 @@ export default class NewPointPresenter {
     this.#addPointButton = addPointButton;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+    this.#mode = POINT_MODE.CREATING;
   }
 
   init() {
@@ -24,30 +26,26 @@ export default class NewPointPresenter {
       return;
     }
 
+    this.#addPointButton.disabled = true;
+
     const destinations = this.#destinationsModel.destinations;
     if (!destinations || destinations.length === 0) {
       return;
     }
 
     const defaultPoint = getDefaultPoint();
-    defaultPoint.destination = destinations[0].id;
-
-    const defaultDestination = this.#destinationsModel.getById(defaultPoint.destination);
-    if (!defaultDestination) {
-      return;
-    }
-
     const defaultOffers = this.#offersModel.getByType(defaultPoint.type) || [];
 
     this.#newPointComponent = new EditPointView({
       point: defaultPoint,
-      destination: defaultDestination,
+      destination: defaultPoint.destination,
       offers: defaultOffers,
       allOffers: this.#offersModel.offers,
       onSaveClick: this.#handleEditPointSave,
       onDeleteClick: this.#handleEditCancelPoint,
       onRollUpClick: this.#handleEditCancelPoint,
-      destinationsModel: this.#destinationsModel
+      destinationsModel: this.#destinationsModel,
+      mode: this.#mode,
     });
 
     render(this.#newPointComponent, this.#container, RenderPosition.AFTERBEGIN);
@@ -62,6 +60,7 @@ export default class NewPointPresenter {
     remove(this.#newPointComponent);
     this.#newPointComponent = null;
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+
     this.#addPointButton.disabled = false;
   }
 

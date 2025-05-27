@@ -1,4 +1,4 @@
-import { FILTERS } from '../const.js';
+import { FilterType } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 export default class FilterView extends AbstractView {
@@ -16,32 +16,24 @@ export default class FilterView extends AbstractView {
   }
 
   get template() {
-    return this.#createFilterTemplate();
+    return this.#createFilterTemplate(this.#currentFilterType);
   }
 
-  #createFilterTemplate() {
+  #createFilterTemplate(currentFilterType) {
     return `
       <form class="trip-filters" action="#" method="get">
-        ${FILTERS.map((filter) => `
-          <div class="trip-filters__filter">
-            <input id="filter-${filter.type}"
-              class="trip-filters__filter-input visually-hidden"
-              type="radio"
-              name="trip-filter"
-              value="${filter.type}"
-              ${this.#currentFilterType === filter.type ? 'checked' : ''}
-              ${this.#disabledFilters.includes(filter.type) ? 'disabled' : ''}>
-            <label class="trip-filters__filter-label ${this.#disabledFilters.includes(filter.type) ? 'trip-filters__filter-label--disabled' : ''}"
-              for="filter-${filter.type}">${filter.name}</label>
-          </div>
-        `).join('')}
-      </form>
+      ${Object.values(FilterType).reduce((acc, filterType) => (`${acc}<div class="trip-filters__filter">
+        <input id="filter-${filterType}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter"
+          value="${filterType}" ${currentFilterType === filterType ? 'checked' : ''}>
+        <label class="trip-filters__filter-label" for="filter-${filterType}">${filterType[0].toUpperCase() + filterType.slice(1)}</label>
+      </div>`), '')}
+      <button class="visually-hidden" type="submit">Accept filter</button>
+    </form>
     `;
   }
 
   #filterTypeChangeHandler = (evt) => {
-    if (evt.target.tagName === 'INPUT' && !evt.target.disabled) {
-      this.#onFilterTypeChange(evt.target.value);
-    }
+    evt.preventDefault();
+    this.#onFilterTypeChange(evt.target.value);
   };
 }

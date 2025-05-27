@@ -10,8 +10,10 @@ const sortByTime = (pointA, pointB) => getTimeDifference(pointB) - getTimeDiffer
 
 const sortByPrice = (pointA, pointB) => pointB.basePrice - pointA.basePrice;
 
-export const sort = {
+const sort = {
   [Sorts.DAY]: (array) => array.sort(sortByDay),
   [Sorts.TIME]: (array) => array.sort(sortByTime),
   [Sorts.PRICE]: (array) => array.sort(sortByPrice)
 };
+
+export {sort};

@@ -5,13 +5,9 @@ import { adaptToClient, updatePoints } from '../utils/common';
 export default class PointsModel extends Observable{
   #pointsApiService = null;
   #points = [];
-  #destinationsModel = null;
-  #offersModel = null;
-  constructor({pointsApiService, destinationsModel, offersModel}) {
+  constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
-    this.#destinationsModel = destinationsModel;
-    this.#offersModel = offersModel;
   }
 
   get points() {
