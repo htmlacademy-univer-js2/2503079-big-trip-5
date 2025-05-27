@@ -1,4 +1,4 @@
-import { UpdateType, UserAction } from '../const.js';
+import { UpdateType, UserAction, POINT_MODE } from '../const.js';
 import { RenderPosition, remove, render } from '../framework/render.js';
 import EditPointView from '../view/edit-point-view.js';
 import {getDefaultPoint} from '../utils/point';
@@ -10,6 +10,7 @@ export default class NewPointPresenter {
   #addPointButton = null;
   #destinationsModel = null;
   #offersModel = null;
+  #mode = null;
 
   constructor({ container, onDataChange, addPointButton, destinationsModel, offersModel }) {
     this.#container = container;
@@ -17,6 +18,7 @@ export default class NewPointPresenter {
     this.#addPointButton = addPointButton;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+    this.#mode = POINT_MODE.CREATING;
   }
 
   init() {
@@ -42,7 +44,8 @@ export default class NewPointPresenter {
       onSaveClick: this.#handleEditPointSave,
       onDeleteClick: this.#handleEditCancelPoint,
       onRollUpClick: this.#handleEditCancelPoint,
-      pointsDestinations: this.#destinationsModel.destinations,
+      destinationsModel: this.#destinationsModel,
+      mode: this.#mode,
     });
 
     render(this.#newPointComponent, this.#container, RenderPosition.AFTERBEGIN);

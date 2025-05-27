@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
-import {DateFormat, TYPE_POINTS, VALIDATION_ERRORS} from '../const.js';
+import {DateFormat, TYPE_POINTS, VALIDATION_ERRORS, POINT_MODE} from '../const.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 function createPicturesTemplate (pictures){
   let result = '';
 
   for (let i = 0; i < pictures.length; i++) {
-    result += `<img class="event__photo" src=${pictures[i].src} alt={pictures[i].description}>`;
+    result += `<img className="event__photo" src=${pictures[i].src} alt={pictures[i].description}>`;
   }
 
   return result;
@@ -53,10 +53,14 @@ function createOffersTemplate (offers, selectedOffers) {
   }).join('');
 }
 
-function createPointEditTemplate (point, destination, offers, allDestinations, isSaving, isDeleting) {
+function createPointEditTemplate (point, destination, offers, allDestinations, isSaving, isDeleting, mode) {
   const dateFrom = dayjs(point.dateFrom).format(DateFormat.LONG);
   const dateTo = dayjs(point.dateTo).format(DateFormat.LONG);
   const isDisabled = isSaving || isDeleting;
+  let deleteText = mode === POINT_MODE.CREATING ? 'Cancel' : 'Delete';
+  if (isDeleting) {
+    deleteText = 'Deleting…';
+  }
 
   return (`<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
@@ -122,10 +126,15 @@ function createPointEditTemplate (point, destination, offers, allDestinations, i
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
-      <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>
-      <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
-        <span class="visually-hidden">Close event</span>
-      </button>
+      <button class="event__reset-btn btn" type="reset" ${isDisabled ? 'disabled' : ''}>
+           ${deleteText}
+         </button>
+
+       ${mode === POINT_MODE.EDITING
+      ? `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
+             <span class="visually-hidden">Close event</span>
+           </button>`
+      : ''}
     </header>
     <section class="event__details">
       <section class="event__section  event__section--offers">
@@ -163,8 +172,9 @@ export default class EditPointView extends AbstractStatefulView {
   #datepickerTo = null;
   #isSaving = false;
   #isDeleting = false;
+  #mode = null;
 
-  constructor({ point, destination, offers, allOffers, onSaveClick, onDeleteClick, onRollUpClick, destinationsModel }) {
+  constructor({ point, destination, offers, allOffers, onSaveClick, onDeleteClick, onRollUpClick, destinationsModel, mode = POINT_MODE.EDITING }) {
     super();
     this.#point = point;
     this.#destinations = destinationsModel.destinations;
@@ -173,6 +183,7 @@ export default class EditPointView extends AbstractStatefulView {
     this.#handleSaveClick = onSaveClick;
     this.#handleDeleteClick = onDeleteClick;
     this.#handleRollUpClick = onRollUpClick;
+    this.#mode = mode;
 
     this._setState({
       ...EditPointView.parsePointToState(point, destination, offers),
@@ -195,12 +206,15 @@ export default class EditPointView extends AbstractStatefulView {
       availableOffers,
       this.#destinations,
       this._state.isSaving,
-      this._state.isDeleting
+      this._state.isDeleting,
+      this.#mode
     );
   }
 
   _restoreHandlers() {
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editPointRollUpHandler);
+    if (this.#mode === POINT_MODE.EDITING) {
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editPointRollUpHandler);
+    }
     this.element.querySelector('form').addEventListener('submit', this.#editPointSaveHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#editPointDeleteHandler);
     this.element

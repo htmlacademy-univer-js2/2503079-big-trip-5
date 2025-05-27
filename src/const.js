@@ -61,7 +61,13 @@ const VALIDATION_ERRORS = {
   DATE_ORDER: 'End date must be after start date'
 };
 
+const POINT_MODE = {
+  CREATING: 'creating',
+  EDITING: 'editing',
+};
+
 export {
+  POINT_MODE,
   DateFormat,
   UpdateType,
   MS_IN_DAY,
