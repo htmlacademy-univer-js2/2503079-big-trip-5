@@ -16,24 +16,42 @@ export default class FilterView extends AbstractView {
   }
 
   get template() {
-    return this.#createFilterTemplate(this.#currentFilterType);
+    return this.#createFilterTemplate(this.#currentFilterType, this.#disabledFilters);
   }
 
-  #createFilterTemplate(currentFilterType) {
+  #createFilterTemplate(currentFilterType, disabledFilters) {
     return `
       <form class="trip-filters" action="#" method="get">
-      ${Object.values(FilterType).reduce((acc, filterType) => (`${acc}<div class="trip-filters__filter">
-        <input id="filter-${filterType}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter"
-          value="${filterType}" ${currentFilterType === filterType ? 'checked' : ''}>
-        <label class="trip-filters__filter-label" for="filter-${filterType}">${filterType[0].toUpperCase() + filterType.slice(1)}</label>
-      </div>`), '')}
-      <button class="visually-hidden" type="submit">Accept filter</button>
-    </form>
+        ${Object.values(FilterType).reduce((acc, filterType) => `
+            ${acc}
+            <div class="trip-filters__filter">
+              <input
+                id="filter-${filterType}"
+                class="trip-filters__filter-input visually-hidden"
+                type="radio"
+                name="trip-filter"
+                value="${filterType}"
+                ${currentFilterType === filterType ? 'checked' : ''}
+                ${disabledFilters.includes(filterType) ? 'disabled' : ''}
+              >
+              <label
+                class="trip-filters__filter-label"
+                for="filter-${filterType}"
+              >
+                ${filterType[0].toUpperCase() + filterType.slice(1)}
+              </label>
+            </div>
+          `, '')}
+        <button class="visually-hidden" type="submit">Accept filter</button>
+      </form>
     `;
   }
 
   #filterTypeChangeHandler = (evt) => {
     evt.preventDefault();
+    if (this.#disabledFilters.includes(evt.target.value)) {
+      return;
+    }
     this.#onFilterTypeChange(evt.target.value);
   };
 }
