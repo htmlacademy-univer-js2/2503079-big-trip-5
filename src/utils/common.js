@@ -1,11 +1,3 @@
-function getRandomArrayElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-function getRandomValue(lower, upper) {
-  return Math.round((upper - lower) * Math.random() + lower);
-}
-
 const removeHandlerOnEscape = (cb) => document.removeEventListener('keydown', cb);
 
 const onEscapeKeyDown = (evt) => {
@@ -45,6 +37,10 @@ function formatDateForServer(date) {
   return null;
 }
 
+function isEscapeKey(evt) {
+  return evt.key === 'Escape';
+}
+
 function adaptToServer(point, isNew = false) {
   const adaptedPoint = {
     type: point.type,
@@ -70,8 +66,7 @@ function adaptToServer(point, isNew = false) {
 }
 
 export {
-  getRandomArrayElement,
-  getRandomValue,
+  isEscapeKey,
   removeHandlerOnEscape,
   onEscapeKeyDown,
   adaptToClient,
